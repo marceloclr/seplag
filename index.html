@@ -219,12 +219,12 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 <!-- Tela de senha: data center escuro com janela de terminal (só CSS) -->
 <div class="login" id="login">
   <canvas class="cena" id="cena" aria-hidden="true"></canvas>
-  <form class="term" id="formLogin" autocomplete="off" novalidate>
+  <form class="term" id="formLogin" autocomplete="off" data-form-type="other" novalidate>
     <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>root@sysboot: ~/login</span></div>
     <div class="term-corpo">
       <div class="boot" id="boot" aria-hidden="true"></div>
-      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="root" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
-      <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="password" autocomplete="current-password" aria-label="Senha"></label>
+      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="root" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Usuário (opcional)"></label>
+      <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Senha (caracteres ocultos)"></label>
       <i class="cursor-t" id="cursorT" aria-hidden="true"></i><span class="medidor-t" id="medidorT" aria-hidden="true"></span>
       <div class="msg" id="lgMsg" role="status" aria-live="polite"></div>
       <div class="rodape-t"><span class="dica">[Enter] para entrar</span><button type="submit" class="entrar">entrar ›</button></div>
@@ -758,7 +758,7 @@ window.addEventListener('resize',function(){
 function mostrarLogin(){
   document.body.classList.add('bloqueado');
   $('#login').classList.remove('oculto','saindo');
-  $('#lgSenha').value=''; $('#lgMsg').textContent=''; $('#lgMsg').className='msg';
+  limparSenha(); $('#lgMsg').textContent=''; $('#lgMsg').className='msg';
   digitarBoot();
   $('#formLogin').classList.add('aguardando');
   setTimeout(function(){ const u=$('#lgUser'); u.focus(); posicionarCursor(); },60);
@@ -796,6 +796,26 @@ function recusar(texto,foco){
   estadoTerm('erro'); if(navigator.vibrate) try{ navigator.vibrate([60,40,60]); }catch(e){}
   if(foco){ foco.focus(); setTimeout(posicionarCursor,0); }
 }
+/* Campo de senha sem type="password": a senha fica só nesta variável e o campo
+   mostra bolinhas. Sem campo de senha, nenhum navegador ou gerenciador oferece
+   salvar ou preencher, nem troca o fundo e a fonte do campo. Como num terminal,
+   a edição é sempre no fim (digitar, apagar, colar). */
+let senhaDigitada='';
+function limparSenha(){ senhaDigitada=''; $('#lgSenha').value=''; }
+(function(){
+  const inp=$('#lgSenha'), MASC='\u2022';
+  const aoFim=function(){ const n=inp.value.length; try{ inp.setSelectionRange(n,n); }catch(e){} };
+  inp.addEventListener('input',function(){
+    const v=inp.value, novos=v.split(MASC).join('');
+    const mantidos=v.length-novos.length;                 // bolinhas que sobraram
+    senhaDigitada=senhaDigitada.slice(0,Math.min(mantidos,senhaDigitada.length))+novos;
+    inp.value=MASC.repeat(senhaDigitada.length); aoFim();
+  });
+  ['click','focus','select','keyup'].forEach(function(ev){ inp.addEventListener(ev,function(){ setTimeout(aoFim,0); }); });
+  inp.addEventListener('keydown',function(ev){ if(['ArrowLeft','ArrowRight','Home','End','ArrowUp','ArrowDown'].indexOf(ev.key)>=0) ev.preventDefault(); });
+  ['copy','cut','dragstart'].forEach(function(ev){ inp.addEventListener(ev,function(e){ e.preventDefault(); }); });
+})();
+
 function estadoTerm(cls){
   const tm=$('#formLogin'); tm.classList.remove('erro','sucesso','aguardando'); void tm.offsetWidth; tm.classList.add(cls);
   if(cls==='erro') setTimeout(function(){ tm.classList.remove('erro'); },1600);
@@ -803,18 +823,18 @@ function estadoTerm(cls){
 $('#lgUser').addEventListener('keydown',function(ev){
   if(ev.key!=='Enter') return;
   ev.preventDefault();
-  if(!$('#lgUser').value.trim() && !$('#lgSenha').value){ recusar('informe usuário e senha',$('#lgUser')); return; }
+  if(!$('#lgUser').value.trim() && !senhaDigitada){ recusar('informe usuário e senha',$('#lgUser')); return; }
   $('#lgSenha').focus();
 });
 $('#formLogin').addEventListener('submit',async function(ev){
   ev.preventDefault();
-  const msg=$('#lgMsg'), senha=$('#lgSenha').value;
+  const msg=$('#lgMsg'), senha=senhaDigitada;
   if(!senha){ recusar('informe a senha',$('#lgSenha')); return; }
   if(!(window.crypto && crypto.subtle)){ msg.className='msg erro'; msg.textContent='abra o portal pelo endereço https'; return; }
   if(await sha256(senha)!==HASH_SENHA){
     msg.className='msg erro'; msg.textContent='acesso negado';
     estadoTerm('erro'); if(navigator.vibrate) try{ navigator.vibrate([60,40,60]); }catch(e){}
-    $('#lgSenha').value=''; $('#lgSenha').focus(); posicionarCursor(); return;
+    limparSenha(); $('#lgSenha').focus(); posicionarCursor(); return;
   }
   try{ sessionStorage.setItem(CHAVE_ACESSO,HASH_SENHA); }catch(e){}
   msg.className='msg ok'; msg.textContent='acesso concedido';
