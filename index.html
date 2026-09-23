@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Portal de Gestão Financeira e Projetos</title>
-<meta name="description" content="Portal de Gestão Financeira e Projetos: os sistemas de trabalho da Cofip · Caexf em abas, sem decorar endereços.">
+<meta name="description" content="Portal de Gestão Financeira e Projetos: Sistemas de Gestão Pública em abas, sem decorar endereços.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -162,23 +162,31 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 .term{position:relative;width:min(560px,100%);border-radius:12px;background:rgba(10,20,44,.62);border:1px solid rgba(125,170,255,.28);
   box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 60px -10px rgba(59,130,246,.35);
   backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);color:#cbd5e1;animation:surgir .5s ease both}
-.term.treme{animation:tremer .38s ease}
-@keyframes tremer{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.term{transition:border-color .2s}
+/* mesma vibração da tela de login do sistema de comunicação: erro treme com borda vermelha; acerto pulsa em verde */
+.term.erro{border-color:#f87171;animation:auth-shake .4s ease-in-out}
+.term.sucesso{border-color:#4ade80;animation:auth-success-pulse .5s ease-out}
+@keyframes auth-shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes auth-success-pulse{0%{box-shadow:0 0 0 rgba(74,222,128,0);transform:scale(1)}40%{box-shadow:0 0 26px rgba(74,222,128,.55);transform:scale(1.015)}100%{box-shadow:0 0 0 rgba(74,222,128,0);transform:scale(1)}}
 .term-barra{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(125,170,255,.16);font-size:12px;color:#94a3b8}
 .term-barra .d{width:12px;height:12px;border-radius:50%}
 .term-barra .vm{background:#ff5f57}.term-barra .am{background:#febc2e}.term-barra .vd{background:#28c840}
 .term-barra span{margin-left:10px}
-.term-corpo{padding:16px 18px 18px;font-size:13.5px;line-height:1.75}
-.boot{min-height:5.25em;color:#4ade80;white-space:pre-wrap}
+.term-corpo{position:relative;padding:16px 18px 18px;font-size:13.5px;line-height:1.75}
+.boot{min-height:7em;color:#4ade80;white-space:pre-wrap}
 .boot .u{color:#7dd3fc}
+.boot .t{color:#94a3b8}
 .campo-t{display:flex;align-items:center;gap:10px;position:relative}
 .campo-t .pr{color:#4ade80;flex:none;min-width:84px}
 .campo-t input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px dashed rgba(125,170,255,.25);outline:none;color:#e2e8f0;
   font:inherit;padding:3px 2px;caret-color:#4ade80}
 .campo-t input::placeholder{color:#475569}
 .campo-t input:focus{border-bottom-color:#4ade80}
-.campo-t .cursor{position:absolute;right:2px;width:8px;height:16px;background:#4ade80;animation:piscar 1s steps(1) infinite;opacity:.8}
-.campo-t input:focus ~ .cursor{display:none}
+.campo-t input{caret-color:transparent}
+/* cursor em bloco do terminal: fica no campo em foco, logo depois do último caractere */
+.cursor-t{position:absolute;width:.62em;height:1.15em;background:#4ade80;opacity:.85;pointer-events:none;animation:piscar 1s steps(1) infinite;display:none}
+.cursor-t.parado{animation:none}
+.medidor-t{position:absolute;visibility:hidden;white-space:pre;pointer-events:none}
 @keyframes piscar{50%{opacity:0}}
 .msg{min-height:1.75em;margin-top:6px}
 .msg.erro{color:#f87171}.msg.ok{color:#4ade80}
@@ -204,11 +212,12 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 <div class="login" id="login">
   <canvas class="cena" id="cena" aria-hidden="true"></canvas>
   <form class="term" id="formLogin" autocomplete="off" novalidate>
-    <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>caexf@gfp: ~/login</span></div>
+    <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>root@sysboot: ~/login</span></div>
     <div class="term-corpo">
       <div class="boot" id="boot" aria-hidden="true"></div>
-      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" value="marceloclr" placeholder="marceloclr" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
-      <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="password" autocomplete="current-password" aria-label="Senha"><i class="cursor" aria-hidden="true"></i></label>
+      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" value="root" placeholder="root" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
+      <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="password" autocomplete="current-password" aria-label="Senha"></label>
+      <i class="cursor-t" id="cursorT" aria-hidden="true"></i><span class="medidor-t" id="medidorT" aria-hidden="true"></span>
       <div class="msg" id="lgMsg" role="status" aria-live="polite"></div>
       <div class="rodape-t"><span class="dica">[Enter] para entrar</span><button type="submit" class="entrar">entrar ›</button></div>
     </div>
@@ -218,7 +227,7 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 <header class="topo">
   <button class="marca" id="marca" title="Início (Alt+0)" aria-label="Portal de Gestão Financeira e Projetos — início">
     <span class="logo" aria-hidden="true"><span>GF</span></span>
-    <span class="nome"><b>Portal de Gestão Financeira e Projetos</b><small>Cofip · Caexf</small></span>
+    <span class="nome"><b>Portal de Gestão Financeira e Projetos</b><small>Sistemas de Gestão Pública</small></span>
   </button>
   <nav class="abas" id="abas" role="tablist" aria-label="Sistemas abertos"></nav>
   <div class="acoes">
@@ -257,7 +266,7 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
       <div class="grade" id="grade"></div>
     </section>
     <footer class="rodape">
-      <span>Cofip · Caexf — Célula de Acompanhamento da Execução Financeira</span>
+      <span>Sistemas de Gestão Pública</span>
       <span>Atalhos: <span class="oculto" data-busca><kbd>Ctrl K</kbd> buscar · </span><kbd>Alt 0</kbd> início · <kbd>Alt 1–9</kbd> abas</span>
     </footer>
   </main>
@@ -516,12 +525,15 @@ async function sha256(txt){
 }
 const SEM_ANIMACAO=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function digitarBoot(){
-  const linhas=[['u','caexf@gfp:~$ '],['','./portal --login\n'],['','Portal de Gestão Financeira e Projetos\n'],['','Cofip · Caexf\n'],['','conexão segura estabelecida ✔']];
+  /* linha de último acesso, como num terminal de verdade (guardada neste navegador) */
+  let ultimo=''; try{ ultimo=localStorage.getItem('gfp.ultimoAcesso')||''; }catch(e){}
+  const quando= ultimo ? 'último acesso: '+new Date(ultimo).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}) : 'primeiro acesso neste terminal';
+  const linhas=[['u','root@sysboot:~$ '],['','./portal --login\n'],['','Portal de Gestão Financeira e Projetos\n'],['','Sistemas de Gestão Pública\n'],['t',quando+' · autenticação requerida']];
   const alvo=$('#boot'); alvo.innerHTML='';
-  if(SEM_ANIMACAO){ alvo.innerHTML=linhas.map(function(l){ return l[0]?'<span class="u">'+esc(l[1])+'</span>':esc(l[1]); }).join(''); return; }
+  if(SEM_ANIMACAO){ alvo.innerHTML=linhas.map(function(l){ return l[0]?'<span class="'+l[0]+'">'+esc(l[1])+'</span>':esc(l[1]); }).join(''); return; }
   let i=0, j=0, span=null;
   (function passo(){
-    if(i>=linhas.length) return;
+    if(i>=linhas.length){ posicionarCursor(); return; }
     if(j===0){ span=document.createElement('span'); if(linhas[i][0]) span.className=linhas[i][0]; alvo.appendChild(span); }
     span.textContent+=linhas[i][1].charAt(j++);
     if(j>=linhas[i][1].length){ i++; j=0; }
@@ -557,6 +569,9 @@ function montarCena(){
   const quad=function(a,b,c,d){ g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.lineTo(c[0],c[1]); g.lineTo(d[0],d[1]); g.closePath(); };
   const nevoa=function(z){ return Math.min(1,Math.max(0,(z-1)/(ZMAX-1))); };
   const rnd=aleatorio(20260923);
+  Object.assign(CENA,{ P:P, cx:cx, cy:cy, FX:FX, FY:FY, ZMAX:ZMAX, PISO:PISO, TETO:TETO, XR:XR });
+  // partículas de poeira suspensas na luz, vindo devagar do fundo
+  CENA.poeira=[]; for(let i=0;i<90;i++) CENA.poeira.push({ x:(rnd()*2-1)*1.1, y:PISO+rnd()*(TETO-PISO), z:1+rnd()*(ZMAX-2), v:.12+rnd()*.25, f:rnd()*6.3 });
 
   // céu escuro e fundo do corredor aceso
   let bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#01040c'); bg.addColorStop(.5,'#04112b'); bg.addColorStop(1,'#01040c');
@@ -626,8 +641,8 @@ function montarCena(){
         const nL=2+Math.floor(rnd()*5), zi=z0+.07+rnd()*.12, cor=cores[Math.floor(rnd()*cores.length)];
         for(let i=0;i<nL;i++){
           const z=zi+i*.022, pt=P(x,y,z), tam=Math.min(3.2,Math.max(.9,.009/z*F));
-          CENA.leds.push({ x:pt[0], y:pt[1], t:tam, cor:(i===0&&rnd()<.3)?'rgba(74,222,128,1)':cor, a:(1-n*0.7), fase:rnd()*6.3, vel:.8+rnd()*4, fixo:rnd()<.4 });
-          if(y<-.3 && rnd()<.35){ const rf=P(x,2*PISO-y,z); CENA.leds.push({ x:rf[0], y:rf[1], t:tam*1.4, cor:cor, a:(1-n)*.09, fase:rnd()*6.3, vel:1, fixo:true }); }
+          const sorte=rnd(); CENA.leds.push({ x:pt[0], y:pt[1], t:tam, cor:(i===0&&rnd()<.3)?'rgba(74,222,128,1)':cor, a:(1-n*0.7), fase:rnd()*6.3, vel:.4+rnd()*1.2, tipo: sorte<.42?'fixo':(sorte<.85?'ativ':'lento'), id:CENA.leds.length });
+          if(y<-.3 && rnd()<.35){ const rf=P(x,2*PISO-y,z); CENA.leds.push({ x:rf[0], y:rf[1], t:tam*1.4, cor:cor, a:(1-n)*.09, fase:rnd()*6.3, vel:1, tipo:'fixo', id:CENA.leds.length }); }
         }
       }
     });
@@ -641,19 +656,53 @@ function montarCena(){
 }
 function quadroCena(ts){
   CENA.raf=requestAnimationFrame(quadroCena);
-  if(ts-CENA.ultimo<90) return;   // ~11 quadros por segundo bastam para o pisca-pisca
+  if(ts-CENA.ultimo<40) return;   // ~25 quadros por segundo
   CENA.ultimo=ts; desenharCena(ts/1000);
 }
+/* ruído determinístico: mesma entrada, mesmo valor entre 0 e 1 */
+function ruido(n){ const s=Math.sin(n*12.9898)*43758.5453; return s-Math.floor(s); }
 function desenharCena(tempo){
   const c=CENA.ctx; if(!c||!CENA.fundo) return;
-  c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.drawImage(CENA.fundo,0,0);
-  c.setTransform(CENA.dpr,0,0,CENA.dpr,0,0); c.globalCompositeOperation='lighter';
+  const W=CENA.w, H=CENA.h, dpr=CENA.dpr;
+  // câmera: aproximação lenta pelo corredor, vai e volta a cada 28 s
+  const zoom=1.02+.02*Math.sin(tempo*2*Math.PI/28), ox=CENA.cx*(1-zoom), oy=CENA.cy*(1-zoom);
+  c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.fillStyle='#01040c'; c.fillRect(0,0,c.canvas.width,c.canvas.height);
+  c.setTransform(dpr*zoom,0,0,dpr*zoom,dpr*ox,dpr*oy);
+  c.drawImage(CENA.fundo,0,0,W,H);
+  // respiração da luz no fim do corredor
+  const res=.5+.5*Math.sin(tempo*.9);
+  let gl=c.createRadialGradient(CENA.cx,CENA.cy,0,CENA.cx,CENA.cy,CENA.FY*.5);
+  gl.addColorStop(0,'rgba(110,170,255,'+(.10+.08*res)+')'); gl.addColorStop(1,'rgba(110,170,255,0)');
+  c.globalCompositeOperation='lighter'; c.fillStyle=gl; c.fillRect(0,0,W,H);
+  // LEDs: status acesos, atividade de disco/rede em rajadas, alguns respirando
   CENA.leds.forEach(function(l){
     let a=l.a;
-    if(!l.fixo){ const s=Math.sin(tempo*l.vel+l.fase); a*= s>.55 ? .15 : (.65+.35*s); }
+    if(l.tipo==='ativ'){
+      const rajada=ruido(Math.floor(tempo*.7+l.fase)+l.id*.37)>.45;              // períodos de atividade
+      a*= rajada ? (ruido(Math.floor(tempo*14)+l.id*1.7)>.35 ? 1 : .12) : .9;   // pisca rápido na rajada
+    } else if(l.tipo==='lento'){ a*=.35+.65*(.5+.5*Math.sin(tempo*l.vel*2+l.fase)); }
     c.globalAlpha=Math.max(0,Math.min(1,a));
     const d=l.t*4.2; c.drawImage(spriteLed(l.cor),l.x-d/2,l.y-d/2,d,d);
   });
+  // poeira em suspensão atravessando a luz
+  const P=CENA.P;
+  CENA.poeira.forEach(function(q){
+    q.z-=q.v/30; if(q.z<.9){ q.z=CENA.ZMAX-1; q.x=(Math.random()*2-1)*1.1; }
+    const y=q.y+Math.sin(tempo*.4+q.f)*.05, pt=P(q.x,y,q.z), n=Math.min(1,(q.z-1)/(CENA.ZMAX-1));
+    const tam=Math.max(.6,.018/q.z*CENA.FX);
+    c.globalAlpha=(1-n)*.35*(.6+.4*Math.sin(tempo*1.3+q.f));
+    c.drawImage(spriteLed('rgba(170,205,255,1)'),pt[0]-tam*2,pt[1]-tam*2,tam*4,tam*4);
+  });
+  // feixe de varredura que percorre o piso de vez em quando
+  const ciclo=(tempo%11)/11;
+  if(ciclo<.45){
+    const z=CENA.ZMAX-1-(ciclo/.45)*(CENA.ZMAX-1.8), pt=P(0,CENA.PISO,z), n=Math.min(1,(z-1)/(CENA.ZMAX-1));
+    const r=1.6/z*CENA.FX, fx=Math.sin(ciclo/.45*Math.PI);
+    let sw=c.createRadialGradient(pt[0],pt[1],0,pt[0],pt[1],r);
+    sw.addColorStop(0,'rgba(90,160,255,'+(.16*fx*(1-n*.5))+')'); sw.addColorStop(1,'rgba(90,160,255,0)');
+    c.globalAlpha=1; c.fillStyle=sw; c.save(); c.translate(pt[0],pt[1]); c.scale(1,.28); c.translate(-pt[0],-pt[1]);
+    c.fillRect(pt[0]-r,pt[1]-r,2*r,2*r); c.restore();
+  }
   c.globalCompositeOperation='source-over'; c.globalAlpha=1;
 }
 function iniciarCena(){
@@ -672,8 +721,37 @@ function mostrarLogin(){
   $('#login').classList.remove('oculto','saindo');
   $('#lgSenha').value=''; $('#lgMsg').textContent=''; $('#lgMsg').className='msg';
   digitarBoot();
-  setTimeout(function(){ const u=$('#lgUser'); u.focus(); u.setSelectionRange(u.value.length,u.value.length); },60);
+  setTimeout(function(){ const u=$('#lgUser'); u.focus(); u.setSelectionRange(u.value.length,u.value.length); posicionarCursor(); },60);
   iniciarCena();
+}
+/* Posiciona o bloco verde logo após o texto antes do cursor, no campo em foco. */
+function posicionarCursor(){
+  const cur=$('#cursorT'), med=$('#medidorT'), inp=document.activeElement;
+  if(!cur) return;
+  if(!inp || !inp.closest || !inp.closest('.campo-t')){ cur.style.display='none'; return; }
+  const corpo=cur.parentNode, ri=inp.getBoundingClientRect(), rc=corpo.getBoundingClientRect(), cs=getComputedStyle(inp);
+  const pos = inp.selectionStart==null ? inp.value.length : inp.selectionStart;
+  med.style.font=cs.font; med.style.letterSpacing=cs.letterSpacing;
+  med.textContent = inp.type==='password' ? '\u2022'.repeat(pos) : inp.value.slice(0,pos);
+  const x=Math.min(ri.width-10, parseFloat(cs.paddingLeft)+med.getBoundingClientRect().width-inp.scrollLeft);
+  cur.style.display='block';
+  cur.style.left=(ri.left-rc.left+x+1)+'px';
+  cur.style.top=(ri.top-rc.top+(ri.height-cur.offsetHeight)/2)+'px';
+  cur.classList.add('parado'); clearTimeout(posicionarCursor._t);   // não pisca enquanto digita
+  posicionarCursor._t=setTimeout(function(){ cur.classList.remove('parado'); },500);
+  cur.dataset.campo=inp.id;
+}
+['focus','blur','input','keyup','click','select'].forEach(function(evn){
+  ['#lgUser','#lgSenha'].forEach(function(s){ $(s).addEventListener(evn,function(){ setTimeout(posicionarCursor,0); }); });
+});
+window.addEventListener('resize',function(){ setTimeout(posicionarCursor,60); });
+/* a fonte monoespaçada e a digitação da abertura mudam medidas depois do primeiro cálculo */
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(posicionarCursor);
+if(window.ResizeObserver) new ResizeObserver(function(){ posicionarCursor(); }).observe($('#formLogin'));
+
+function estadoTerm(cls){
+  const tm=$('#formLogin'); tm.classList.remove('erro','sucesso'); void tm.offsetWidth; tm.classList.add(cls);
+  if(cls==='erro') setTimeout(function(){ tm.classList.remove('erro'); },1600);
 }
 $('#lgUser').addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); $('#lgSenha').focus(); } });
 $('#formLogin').addEventListener('submit',async function(ev){
@@ -683,17 +761,18 @@ $('#formLogin').addEventListener('submit',async function(ev){
   if(!(window.crypto && crypto.subtle)){ msg.className='msg erro'; msg.textContent='abra o portal pelo endereço https'; return; }
   if(await sha256(senha)!==HASH_SENHA){
     msg.className='msg erro'; msg.textContent='acesso negado';
-    const tm=$('#formLogin'); tm.classList.remove('treme'); void tm.offsetWidth; if(!SEM_ANIMACAO) tm.classList.add('treme');
-    $('#lgSenha').select(); return;
+    estadoTerm('erro'); if(navigator.vibrate) try{ navigator.vibrate([60,40,60]); }catch(e){}
+    $('#lgSenha').value=''; $('#lgSenha').focus(); posicionarCursor(); return;
   }
-  try{ sessionStorage.setItem(CHAVE_ACESSO,HASH_SENHA); }catch(e){}
+  try{ sessionStorage.setItem(CHAVE_ACESSO,HASH_SENHA); localStorage.setItem('gfp.ultimoAcesso',new Date().toISOString()); }catch(e){}
   msg.className='msg ok'; msg.textContent='acesso concedido';
+  estadoTerm('sucesso');
   setTimeout(function(){
     $('#login').classList.add('saindo'); pararCena();
     document.body.classList.remove('bloqueado');
     iniciar();
     setTimeout(function(){ $('#login').classList.add('oculto'); }, SEM_ANIMACAO?0:500);
-  }, SEM_ANIMACAO?0:350);
+  }, SEM_ANIMACAO?0:650);
 });
 $('#btnSair').addEventListener('click',function(){
   const temAberto=Object.keys(E.paineis).length>0;
