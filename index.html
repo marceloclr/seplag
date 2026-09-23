@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Portal SEPLAG</title>
-<meta name="description" content="Portal dos sistemas da SEPLAG: abra Saneamento de MAPPs, SIPOG e outros sistemas em abas, sem decorar endereços.">
+<title>Portal de Gestão Financeira e Projetos</title>
+<meta name="description" content="Portal de Gestão Financeira e Projetos: os sistemas de trabalho da Cofip · Caexf em abas, sem decorar endereços.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --fundo:#f4f6fb; --fundo-2:#eaeef7; --carta:#ffffff; --carta-2:#f8fafd;
@@ -45,7 +45,7 @@ button{font:inherit;color:inherit}
 .marca{display:flex;align-items:center;gap:10px;flex:none;text-decoration:none;color:inherit;border:0;background:none;cursor:pointer;padding:4px 6px}
 .marca .logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
   background:conic-gradient(from 210deg,#14b8a6,#6366f1,#ec4899,#f97316,#14b8a6);box-shadow:0 4px 14px -4px rgba(99,102,241,.7)}
-.marca .logo span{width:26px;height:26px;border-radius:8px;background:var(--topo);display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:-.5px}
+.marca .logo span{width:26px;height:26px;border-radius:8px;background:var(--topo);display:grid;place-items:center;font-weight:800;font-size:11px;letter-spacing:-.4px}
 .marca .nome{display:flex;flex-direction:column;line-height:1.1;text-align:left}
 .marca .nome b{font-size:15px;font-weight:800;letter-spacing:-.2px}
 .marca .nome small{font-size:10.5px;color:var(--topo-tinta-2);font-weight:500}
@@ -152,6 +152,56 @@ html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
 .dialogo .botoes{display:flex;justify-content:flex-end;gap:8px}
 .dialogo .btn.perigo{border:0;color:#fff;background:linear-gradient(135deg,#dc2626,#e11d48)}
 
+/* ------------------------------- Tela de senha ------------------------------ */
+body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
+.login{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;overflow:hidden;
+  background:radial-gradient(ellipse 60% 50% at 50% 45%,rgba(37,99,235,.28),transparent 70%),linear-gradient(180deg,#020611,#061634 55%,#020611);
+  font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;transition:opacity .5s ease}
+.login.saindo{opacity:0;pointer-events:none}
+.dc{position:absolute;inset:0;perspective:900px;pointer-events:none}
+.dc .teto{position:absolute;left:0;right:0;top:4%;height:30%;display:flex;flex-direction:column;align-items:center;gap:22px;transform:rotateX(55deg);transform-origin:top}
+.dc .teto i{width:62%;height:10px;border-radius:6px;background:#dbeafe;box-shadow:0 0 30px 8px rgba(147,197,253,.55);opacity:.8}
+.dc .teto i:nth-child(2){width:48%;opacity:.55}.dc .teto i:nth-child(3){width:36%;opacity:.35}
+.dc .rack{position:absolute;top:8%;bottom:-6%;width:34%;
+  background:
+    radial-gradient(circle,#38bdf8 0 1.6px,transparent 2.4px) 0 0/22px 17px,
+    repeating-linear-gradient(0deg,rgba(148,163,184,.10) 0 2px,transparent 2px 17px),
+    repeating-linear-gradient(90deg,#030a1c 0 58px,#0b1a3a 58px 62px),
+    linear-gradient(90deg,#030a1c,#0a1733);
+  box-shadow:inset 0 0 80px rgba(0,0,0,.85);animation:leds 3.2s steps(2) infinite}
+.dc .rack.esq{left:-6%;transform:rotateY(38deg);transform-origin:left}
+.dc .rack.dir{right:-6%;transform:rotateY(-38deg);transform-origin:right;animation-delay:-1.6s}
+@keyframes leds{50%{filter:brightness(1.35) hue-rotate(-12deg)}}
+.dc .halo{position:absolute;left:50%;top:50%;width:620px;height:420px;transform:translate(-50%,-50%);border-radius:50%;background:rgba(59,130,246,.22);filter:blur(80px)}
+.term{position:relative;width:min(560px,100%);border-radius:12px;background:rgba(10,20,44,.62);border:1px solid rgba(125,170,255,.28);
+  box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 60px -10px rgba(59,130,246,.35);
+  backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);color:#cbd5e1;animation:surgir .5s ease both}
+.term.treme{animation:tremer .38s ease}
+@keyframes tremer{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.term-barra{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(125,170,255,.16);font-size:12px;color:#94a3b8}
+.term-barra .d{width:12px;height:12px;border-radius:50%}
+.term-barra .vm{background:#ff5f57}.term-barra .am{background:#febc2e}.term-barra .vd{background:#28c840}
+.term-barra span{margin-left:10px}
+.term-corpo{padding:16px 18px 18px;font-size:13.5px;line-height:1.75}
+.boot{min-height:5.25em;color:#4ade80;white-space:pre-wrap}
+.boot .u{color:#7dd3fc}
+.campo-t{display:flex;align-items:center;gap:10px;position:relative}
+.campo-t .pr{color:#4ade80;flex:none;min-width:84px}
+.campo-t input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px dashed rgba(125,170,255,.25);outline:none;color:#e2e8f0;
+  font:inherit;padding:3px 2px;caret-color:#4ade80}
+.campo-t input::placeholder{color:#475569}
+.campo-t input:focus{border-bottom-color:#4ade80}
+.campo-t .cursor{position:absolute;right:2px;width:8px;height:16px;background:#4ade80;animation:piscar 1s steps(1) infinite;opacity:.8}
+.campo-t input:focus ~ .cursor{display:none}
+@keyframes piscar{50%{opacity:0}}
+.msg{min-height:1.75em;margin-top:6px}
+.msg.erro{color:#f87171}.msg.ok{color:#4ade80}
+.rodape-t{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+.dica{color:#64748b;font-size:12px}
+.entrar{font:inherit;font-size:12.5px;color:#0b1a3a;background:#4ade80;border:0;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:600}
+.entrar:hover{filter:brightness(1.08)}
+@media(max-width:520px){.campo-t{flex-wrap:wrap;gap:0 10px}.campo-t .pr{min-width:0}.term-corpo{font-size:12.5px}.dc .rack{width:40%}}
+
 @media(max-width:720px){
   .marca .nome,.btn-topo .txt,.btn-topo kbd,.sep{display:none}
   .topo{padding:0 8px;gap:6px}
@@ -162,12 +212,31 @@ html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body class="bloqueado">
+
+<!-- Tela de senha: data center escuro com janela de terminal (só CSS) -->
+<div class="login" id="login">
+  <div class="dc" aria-hidden="true">
+    <div class="teto"><i></i><i></i><i></i></div>
+    <div class="rack esq"></div><div class="rack dir"></div>
+    <div class="halo"></div>
+  </div>
+  <form class="term" id="formLogin" autocomplete="off" novalidate>
+    <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>caexf@gfp: ~/login</span></div>
+    <div class="term-corpo">
+      <div class="boot" id="boot" aria-hidden="true"></div>
+      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="caexf" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
+      <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="password" autocomplete="current-password" aria-label="Senha"><i class="cursor" aria-hidden="true"></i></label>
+      <div class="msg" id="lgMsg" role="status" aria-live="polite"></div>
+      <div class="rodape-t"><span class="dica">[Enter] para entrar</span><button type="submit" class="entrar">entrar ›</button></div>
+    </div>
+  </form>
+</div>
 
 <header class="topo">
-  <button class="marca" id="marca" title="Início (Alt+0)" aria-label="Portal SEPLAG — início">
-    <span class="logo" aria-hidden="true"><span>S</span></span>
-    <span class="nome"><b>Portal SEPLAG</b><small>Sistemas em um só lugar</small></span>
+  <button class="marca" id="marca" title="Início (Alt+0)" aria-label="Portal de Gestão Financeira e Projetos — início">
+    <span class="logo" aria-hidden="true"><span>GF</span></span>
+    <span class="nome"><b>Portal de Gestão Financeira e Projetos</b><small>Cofip · Caexf</small></span>
   </button>
   <nav class="abas" id="abas" role="tablist" aria-label="Sistemas abertos"></nav>
   <div class="acoes">
@@ -176,7 +245,8 @@ html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
       <button class="btn-topo" id="btnJanela" title="Abrir este sistema numa aba do navegador"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg><span class="txt">Nova janela</span></button>
       <span class="sep"></span>
     </span>
-    <button class="btn-topo" id="btnBusca" title="Buscar sistema (Ctrl+K)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="txt">Buscar</span><kbd>Ctrl K</kbd></button>
+    <button class="btn-topo oculto" data-busca id="btnBusca" title="Buscar sistema (Ctrl+K)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="txt">Buscar</span><kbd>Ctrl K</kbd></button>
+    <button class="btn-topo" id="btnSair" title="Sair: volta à tela de senha" aria-label="Sair"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="txt">Sair</span></button>
     <button class="btn-topo" id="btnTema" title="Alternar tema claro e escuro" aria-label="Alternar tema"><svg id="icoTema" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg></button>
   </div>
 </header>
@@ -188,8 +258,8 @@ html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
       <div class="conteudo">
         <div class="data" id="hoje"></div>
         <h1 id="saudacao">Bom dia! <em>Seus sistemas</em>, num só lugar.</h1>
-        <p>Abra qualquer sistema da SEPLAG sem decorar endereços. Cada um abre numa aba aqui dentro, e o trabalho continua lá quando você troca de aba.</p>
-        <label class="busca">
+        <p>Abra os sistemas de trabalho sem decorar endereços. Cada um abre numa aba aqui dentro, e o trabalho continua lá quando você troca de aba.</p>
+        <label class="busca oculto" data-busca>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input id="busca" type="search" placeholder="Buscar sistema, assunto ou sigla…" autocomplete="off" aria-label="Buscar sistema">
           <kbd>Ctrl K</kbd>
@@ -205,8 +275,8 @@ html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
       <div class="grade" id="grade"></div>
     </section>
     <footer class="rodape">
-      <span>Governo do Estado do Ceará · Secretaria do Planejamento e Gestão</span>
-      <span>Atalhos: <kbd>Ctrl K</kbd> buscar · <kbd>Alt 0</kbd> início · <kbd>Alt 1–9</kbd> abas</span>
+      <span>Cofip · Caexf — Célula de Acompanhamento da Execução Financeira</span>
+      <span>Atalhos: <span class="oculto" data-busca><kbd>Ctrl K</kbd> buscar · </span><kbd>Alt 0</kbd> início · <kbd>Alt 1–9</kbd> abas</span>
     </footer>
   </main>
 </div>
@@ -225,10 +295,12 @@ html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
 <script>
 "use strict";
 /* ==========================================================================
-   Portal SEPLAG — cadastro dos sistemas.
+   Portal de Gestão Financeira e Projetos — cadastro dos sistemas.
    Para incluir um sistema, acrescente um objeto a SISTEMAS. `extras` são
    entradas secundárias que também abrem em aba própria dentro do portal.
    ========================================================================== */
+const BUSCA_VISIVEL = false;   /* com poucos sistemas a busca fica oculta */
+
 const SISTEMAS = [
   { id:'saneamento', nome:'Saneamento de MAPPs', sigla:'Webmapp',
     url:'https://marceloclr.github.io/saneamento/',
@@ -267,7 +339,7 @@ SISTEMAS.forEach(function(s){
 const E = { abertas:[], ativa:'inicio', paineis:{}, carregado:{} };
 
 /* Preferências deste navegador (tema e abas abertas); nada disso é essencial. */
-const CHAVE='seplag.portal';
+const CHAVE='gfp.portal';
 function lerPref(){ try{ return JSON.parse(localStorage.getItem(CHAVE)||'{}')||{}; }catch(e){ return {}; } }
 function gravarPref(){ try{ localStorage.setItem(CHAVE,JSON.stringify({ tema:document.documentElement.dataset.tema, abertas:E.abertas, ativa:E.ativa })); }catch(e){} }
 
@@ -388,8 +460,8 @@ function ativar(id,semHistorico){
   E.ativa=id;
   $('#inicio').classList.toggle('oculto',id!=='inicio');
   Object.keys(E.paineis).forEach(function(k){ E.paineis[k].classList.toggle('oculto',k!==id); });
-  if(id!=='inicio'){ painel(id).classList.remove('oculto'); document.title=DESTINOS[id].nome+' · Portal SEPLAG'; }
-  else document.title='Portal SEPLAG';
+  if(id!=='inicio'){ painel(id).classList.remove('oculto'); document.title=DESTINOS[id].nome+' · Portal GFP'; }
+  else document.title='Portal de Gestão Financeira e Projetos';
   const h= id==='inicio' ? '#/' : '#/'+id;
   if(!semHistorico && location.hash!==h) history.pushState(null,'',h);
   desenharAbas(); gravarPref();
@@ -406,6 +478,7 @@ function fecharAba(id){
 /* Confirma só se o sistema chegou a ser carregado nesta sessão (pode haver trabalho em memória). */
 function pedirFechamento(id){
   if(!E.paineis[id]){ fecharAba(id); return; }
+  $('#dlgTitulo').textContent='Fechar a aba?'; $('#dlgConfirmar').textContent='Fechar aba';
   $('#dlgTexto').textContent='O que estiver aberto em “'+DESTINOS[id].nome+'” e ainda não foi salvo será perdido.';
   $('#veu').classList.remove('oculto'); $('#dlgConfirmar').focus();
   $('#dlgConfirmar').onclick=function(){ fecharDialogo(); fecharAba(id); };
@@ -440,7 +513,7 @@ $('#btnJanela').addEventListener('click',function(){ if(DESTINOS[E.ativa]) windo
 function focarBusca(){ ativar('inicio'); setTimeout(function(){ $('#busca').focus(); $('#busca').select(); },30); }
 document.addEventListener('keydown',function(ev){
   if(!$('#veu').classList.contains('oculto') && ev.key==='Escape'){ fecharDialogo(); return; }
-  if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='k'){ ev.preventDefault(); focarBusca(); return; }
+  if(BUSCA_VISIVEL && (ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='k'){ ev.preventDefault(); focarBusca(); return; }
   if(ev.altKey && /^[0-9]$/.test(ev.key)){
     ev.preventDefault();
     const n=+ev.key; ativar(n===0?'inicio':(E.abertas[n-1]||E.ativa));
@@ -449,8 +522,72 @@ document.addEventListener('keydown',function(ev){
 window.addEventListener('popstate',function(){ ativar(rotaAtual(),true); });
 function rotaAtual(){ const m=location.hash.match(/^#\/(.+)$/); return m&&DESTINOS[m[1]] ? m[1] : 'inicio'; }
 
+/* ---------------------------------- Senha ----------------------------------- */
+/* Cortina de acesso de um site estático: só o SHA-256 da senha fica no código.
+   A liberação vale para a sessão do navegador (sessionStorage). */
+const HASH_SENHA='ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb';
+const CHAVE_ACESSO='gfp.acesso';
+function liberado(){ try{ return sessionStorage.getItem(CHAVE_ACESSO)===HASH_SENHA; }catch(e){ return false; } }
+async function sha256(txt){
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));
+  return Array.from(new Uint8Array(b)).map(function(x){ return x.toString(16).padStart(2,'0'); }).join('');
+}
+const SEM_ANIMACAO=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function digitarBoot(){
+  const linhas=[['u','caexf@gfp:~$ '],['','./portal --login\n'],['','Portal de Gestão Financeira e Projetos\n'],['','Cofip · Caexf\n'],['','conexão segura estabelecida ✔']];
+  const alvo=$('#boot'); alvo.innerHTML='';
+  if(SEM_ANIMACAO){ alvo.innerHTML=linhas.map(function(l){ return l[0]?'<span class="u">'+esc(l[1])+'</span>':esc(l[1]); }).join(''); return; }
+  let i=0, j=0, span=null;
+  (function passo(){
+    if(i>=linhas.length) return;
+    if(j===0){ span=document.createElement('span'); if(linhas[i][0]) span.className=linhas[i][0]; alvo.appendChild(span); }
+    span.textContent+=linhas[i][1].charAt(j++);
+    if(j>=linhas[i][1].length){ i++; j=0; }
+    setTimeout(passo,18);
+  })();
+}
+function mostrarLogin(){
+  document.body.classList.add('bloqueado');
+  $('#login').classList.remove('oculto','saindo');
+  $('#lgSenha').value=''; $('#lgMsg').textContent=''; $('#lgMsg').className='msg';
+  digitarBoot();
+  setTimeout(function(){ $('#lgSenha').focus(); },60);
+}
+$('#lgUser').addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); $('#lgSenha').focus(); } });
+$('#formLogin').addEventListener('submit',async function(ev){
+  ev.preventDefault();
+  const msg=$('#lgMsg'), senha=$('#lgSenha').value;
+  if(!senha){ msg.className='msg erro'; msg.textContent='informe a senha'; $('#lgSenha').focus(); return; }
+  if(!(window.crypto && crypto.subtle)){ msg.className='msg erro'; msg.textContent='abra o portal pelo endereço https'; return; }
+  if(await sha256(senha)!==HASH_SENHA){
+    msg.className='msg erro'; msg.textContent='acesso negado';
+    const tm=$('#formLogin'); tm.classList.remove('treme'); void tm.offsetWidth; if(!SEM_ANIMACAO) tm.classList.add('treme');
+    $('#lgSenha').select(); return;
+  }
+  try{ sessionStorage.setItem(CHAVE_ACESSO,HASH_SENHA); }catch(e){}
+  msg.className='msg ok'; msg.textContent='acesso concedido';
+  setTimeout(function(){
+    $('#login').classList.add('saindo');
+    document.body.classList.remove('bloqueado');
+    iniciar();
+    setTimeout(function(){ $('#login').classList.add('oculto'); }, SEM_ANIMACAO?0:500);
+  }, SEM_ANIMACAO?0:350);
+});
+$('#btnSair').addEventListener('click',function(){
+  const temAberto=Object.keys(E.paineis).length>0;
+  const sair=function(){ try{ sessionStorage.removeItem(CHAVE_ACESSO); }catch(e){} location.hash='#/'; location.reload(); };
+  if(!temAberto){ sair(); return; }
+  $('#dlgTitulo').textContent='Sair do portal?';
+  $('#dlgTexto').textContent='Os sistemas abertos serão fechados e o que não foi salvo neles será perdido.';
+  $('#dlgConfirmar').textContent='Sair';
+  $('#veu').classList.remove('oculto'); $('#dlgConfirmar').focus();
+  $('#dlgConfirmar').onclick=sair;
+});
+
 /* ------------------------------- Início ------------------------------------- */
-(function iniciar(){
+let iniciado=false;
+function iniciar(){
+  if(iniciado) return; iniciado=true;
   const pref=lerPref();
   aplicarTema(pref.tema || (matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro'));
   montarVitrine();
@@ -459,7 +596,12 @@ function rotaAtual(){ const m=location.hash.match(/^#\/(.+)$/); return m&&DESTIN
   const alvo = location.hash ? rotaAtual() : (pref.ativa && DESTINOS[pref.ativa] ? pref.ativa : 'inicio');
   ativar(alvo,true);
   history.replaceState(null,'',alvo==='inicio'?'#/':'#/'+alvo);
-})();
+}
+/* A busca volta quando houver sistemas bastantes: basta BUSCA_VISIVEL=true. */
+document.querySelectorAll('[data-busca]').forEach(function(el){ el.classList.toggle('oculto',!BUSCA_VISIVEL); });
+aplicarTema(lerPref().tema || (matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro'));
+if(liberado()){ document.body.classList.remove('bloqueado'); $('#login').classList.add('oculto'); iniciar(); }
+else mostrarLogin();
 </script>
 </body>
 </html>
