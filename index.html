@@ -158,21 +158,7 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
   background:radial-gradient(ellipse 60% 50% at 50% 45%,rgba(37,99,235,.28),transparent 70%),linear-gradient(180deg,#020611,#061634 55%,#020611);
   font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;transition:opacity .5s ease}
 .login.saindo{opacity:0;pointer-events:none}
-.dc{position:absolute;inset:0;perspective:900px;pointer-events:none}
-.dc .teto{position:absolute;left:0;right:0;top:4%;height:30%;display:flex;flex-direction:column;align-items:center;gap:22px;transform:rotateX(55deg);transform-origin:top}
-.dc .teto i{width:62%;height:10px;border-radius:6px;background:#dbeafe;box-shadow:0 0 30px 8px rgba(147,197,253,.55);opacity:.8}
-.dc .teto i:nth-child(2){width:48%;opacity:.55}.dc .teto i:nth-child(3){width:36%;opacity:.35}
-.dc .rack{position:absolute;top:8%;bottom:-6%;width:34%;
-  background:
-    radial-gradient(circle,#38bdf8 0 1.6px,transparent 2.4px) 0 0/22px 17px,
-    repeating-linear-gradient(0deg,rgba(148,163,184,.10) 0 2px,transparent 2px 17px),
-    repeating-linear-gradient(90deg,#030a1c 0 58px,#0b1a3a 58px 62px),
-    linear-gradient(90deg,#030a1c,#0a1733);
-  box-shadow:inset 0 0 80px rgba(0,0,0,.85);animation:leds 3.2s steps(2) infinite}
-.dc .rack.esq{left:-6%;transform:rotateY(38deg);transform-origin:left}
-.dc .rack.dir{right:-6%;transform:rotateY(-38deg);transform-origin:right;animation-delay:-1.6s}
-@keyframes leds{50%{filter:brightness(1.35) hue-rotate(-12deg)}}
-.dc .halo{position:absolute;left:50%;top:50%;width:620px;height:420px;transform:translate(-50%,-50%);border-radius:50%;background:rgba(59,130,246,.22);filter:blur(80px)}
+.cena{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 .term{position:relative;width:min(560px,100%);border-radius:12px;background:rgba(10,20,44,.62);border:1px solid rgba(125,170,255,.28);
   box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 60px -10px rgba(59,130,246,.35);
   backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);color:#cbd5e1;animation:surgir .5s ease both}
@@ -200,7 +186,7 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 .dica{color:#64748b;font-size:12px}
 .entrar{font:inherit;font-size:12.5px;color:#0b1a3a;background:#4ade80;border:0;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:600}
 .entrar:hover{filter:brightness(1.08)}
-@media(max-width:520px){.campo-t{flex-wrap:wrap;gap:0 10px}.campo-t .pr{min-width:0}.term-corpo{font-size:12.5px}.dc .rack{width:40%}}
+@media(max-width:520px){.campo-t{flex-wrap:wrap;gap:0 10px}.campo-t .pr{min-width:0}.term-corpo{font-size:12.5px}}
 
 @media(max-width:720px){
   .marca .nome,.btn-topo .txt,.btn-topo kbd,.sep{display:none}
@@ -216,16 +202,12 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 
 <!-- Tela de senha: data center escuro com janela de terminal (só CSS) -->
 <div class="login" id="login">
-  <div class="dc" aria-hidden="true">
-    <div class="teto"><i></i><i></i><i></i></div>
-    <div class="rack esq"></div><div class="rack dir"></div>
-    <div class="halo"></div>
-  </div>
+  <canvas class="cena" id="cena" aria-hidden="true"></canvas>
   <form class="term" id="formLogin" autocomplete="off" novalidate>
     <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>caexf@gfp: ~/login</span></div>
     <div class="term-corpo">
       <div class="boot" id="boot" aria-hidden="true"></div>
-      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="caexf" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
+      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" value="marceloclr" placeholder="marceloclr" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
       <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="password" autocomplete="current-password" aria-label="Senha"><i class="cursor" aria-hidden="true"></i></label>
       <div class="msg" id="lgMsg" role="status" aria-live="polite"></div>
       <div class="rodape-t"><span class="dica">[Enter] para entrar</span><button type="submit" class="entrar">entrar ›</button></div>
@@ -546,12 +528,152 @@ function digitarBoot(){
     setTimeout(passo,18);
   })();
 }
+/* ------------------------- Cena da tela de senha ---------------------------
+   Corredor de data center em perspectiva, desenhado em canvas: racks dos dois
+   lados, luminárias no teto, piso com reflexo, névoa azul ao fundo e LEDs que
+   piscam. O cenário fixo é pintado uma vez num canvas de apoio; a cada quadro
+   só os LEDs são redesenhados. */
+const CENA={ ctx:null, fundo:null, leds:[], sprites:{}, raf:0, ultimo:0, w:0, h:0, dpr:1 };
+function aleatorio(semente){ return function(){ semente|=0; semente=semente+0x6D2B79F5|0; let x=Math.imul(semente^semente>>>15,1|semente);
+  x=x+Math.imul(x^x>>>7,61|x)^x; return ((x^x>>>14)>>>0)/4294967296; }; }
+function spriteLed(cor){
+  if(CENA.sprites[cor]) return CENA.sprites[cor];
+  const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d');
+  const r=g.createRadialGradient(32,32,0,32,32,32);
+  r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(.12,cor); r.addColorStop(.35,cor.replace(/[\d.]+\)$/,'.35)')); r.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=r; g.fillRect(0,0,64,64); return (CENA.sprites[cor]=c);
+}
+function montarCena(){
+  const cv=$('#cena'); if(!cv) return;
+  const dpr=Math.min(2,window.devicePixelRatio||1), W=cv.clientWidth, H=cv.clientHeight;
+  CENA.w=W; CENA.h=H; CENA.dpr=dpr;
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+  CENA.ctx=cv.getContext('2d');
+  const f=document.createElement('canvas'); f.width=cv.width; f.height=cv.height;
+  const g=f.getContext('2d'); g.scale(dpr,dpr); CENA.fundo=f;
+  /* escala horizontal e vertical separadas: em tela em pé o corredor estreita sem perder os racks */
+  const FY=H*0.78, FX=Math.min(FY,W*0.62), F=FX, cx=W/2, cy=H*0.46, XR=1.25, PISO=-1, TETO=1.3, ZMAX=17;
+  const P=function(x,y,z){ return [cx+x/z*FX, cy-y/z*FY]; };
+  const quad=function(a,b,c,d){ g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.lineTo(c[0],c[1]); g.lineTo(d[0],d[1]); g.closePath(); };
+  const nevoa=function(z){ return Math.min(1,Math.max(0,(z-1)/(ZMAX-1))); };
+  const rnd=aleatorio(20260923);
+
+  // céu escuro e fundo do corredor aceso
+  let bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#01040c'); bg.addColorStop(.5,'#04112b'); bg.addColorStop(1,'#01040c');
+  g.fillStyle=bg; g.fillRect(0,0,W,H);
+  const fd=[P(-XR,TETO,ZMAX),P(XR,TETO,ZMAX),P(XR,PISO,ZMAX),P(-XR,PISO,ZMAX)];
+  let gl=g.createRadialGradient(cx,cy,0,cx,cy,FY*0.35); gl.addColorStop(0,'rgba(120,180,255,.95)'); gl.addColorStop(.5,'rgba(40,110,255,.55)'); gl.addColorStop(1,'rgba(10,40,120,0)');
+  g.fillStyle=gl; g.fillRect(0,0,W,H);
+  quad(fd[0],fd[1],fd[2],fd[3]); g.fillStyle='rgba(150,200,255,.55)'; g.fill();
+
+  // teto e piso
+  quad(P(-XR,TETO,.6),P(XR,TETO,.6),P(XR,TETO,ZMAX),P(-XR,TETO,ZMAX)); g.fillStyle='#030a1a'; g.fill();
+  const pp=[P(-XR,PISO,.6),P(XR,PISO,.6),P(XR,PISO,ZMAX),P(-XR,PISO,ZMAX)];
+  let gp=g.createLinearGradient(0,pp[0][1],0,pp[2][1]); gp.addColorStop(0,'#02060f'); gp.addColorStop(1,'#0a2658');
+  quad(pp[0],pp[1],pp[2],pp[3]); g.fillStyle=gp; g.fill();
+  g.lineWidth=1; g.strokeStyle='rgba(120,170,255,.07)';
+  for(let x=-XR;x<=XR+.01;x+=.42){ const a=P(x,PISO,.6), b=P(x,PISO,ZMAX); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); }
+  for(let z=.8;z<ZMAX;z*=1.18){ const a=P(-XR,PISO,z), b=P(XR,PISO,z); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); }
+
+  // luminárias do teto e o reflexo delas no piso
+  [-.46,.46].forEach(function(x){
+    for(let z=1.6;z<ZMAX-.5;z+=1.05){
+      const q=[P(x-.035,TETO,z),P(x+.035,TETO,z),P(x+.035,TETO,z+.62),P(x-.035,TETO,z+.62)], n=nevoa(z);
+      const m=P(x,TETO,z+.31); let hl=g.createRadialGradient(m[0],m[1],0,m[0],m[1],.9/z*F);
+      hl.addColorStop(0,'rgba(120,170,255,'+(0.22-n*0.14)+')'); hl.addColorStop(1,'rgba(120,170,255,0)');
+      g.fillStyle=hl; g.fillRect(m[0]-FY,m[1]-FY,2*FY,2*FY);
+      g.save(); g.shadowColor='rgba(170,210,255,.95)'; g.shadowBlur=16*(1-n)+4;
+      quad(q[0],q[1],q[2],q[3]); g.fillStyle='rgba(225,238,255,'+(0.8-n*0.5)+')'; g.fill(); g.restore();
+      const r=[P(x-.1,2*PISO-TETO,z),P(x+.1,2*PISO-TETO,z),P(x+.1,2*PISO-TETO,z+.8),P(x-.1,2*PISO-TETO,z+.8)];
+      g.save(); g.filter='blur(6px)'; quad(r[0],r[1],r[2],r[3]); g.fillStyle='rgba(170,205,255,'+(0.14-n*0.08)+')'; g.fill(); g.restore();
+    }
+  });
+
+  // racks: faces voltadas para o corredor, de longe para perto
+  CENA.leds=[];
+  const cores=['rgba(56,189,248,1)','rgba(56,189,248,1)','rgba(56,189,248,1)','rgba(96,165,250,1)','rgba(125,211,252,1)','rgba(74,222,128,1)'];
+  [-1,1].forEach(function(s){
+    const racks=[];
+    for(let z0=.75;z0<ZMAX-.3;z0+=.64) racks.push(z0);
+    racks.reverse().forEach(function(z0){
+      const z1=z0+.6, x=s*XR, n=nevoa(z0);
+      const a=P(x,1.12,z0), b=P(x,1.12,z1), c=P(x,PISO,z1), d=P(x,PISO,z0);
+      let gr=g.createLinearGradient(0,a[1],0,d[1]);
+      gr.addColorStop(0,'rgba('+Math.round(8+30*n)+','+Math.round(16+50*n)+','+Math.round(34+90*n)+',1)');
+      gr.addColorStop(1,'rgba('+Math.round(4+20*n)+','+Math.round(9+36*n)+','+Math.round(22+70*n)+',1)');
+      quad(a,b,c,d); g.fillStyle=gr; g.fill();
+      g.strokeStyle='rgba(140,180,255,'+(0.22-n*0.12)+')'; g.lineWidth=Math.max(.5,1.4*(1-n)); g.stroke();
+      // unidades do rack (ranhuras horizontais) e grade da porta
+      g.lineWidth=.7;
+      for(let y=PISO+.08;y<1.08;y+=.085){
+        if(rnd()<.12) continue;   // espaço vazio no rack
+        const alto=.085*(rnd()<.2?2:1)-.012;
+        const s1=P(x,y+alto,z0+.04), s2=P(x,y+alto,z1-.04), s3=P(x,y,z1-.04), s4=P(x,y,z0+.04);
+        quad(s1,s2,s3,s4); g.fillStyle='rgba('+Math.round(14+34*n)+','+Math.round(24+56*n)+','+Math.round(46+96*n)+','+(0.9)+')'; g.fill();
+        g.strokeStyle='rgba(150,190,255,'+(0.16-n*0.1)+')'; g.beginPath(); g.moveTo(s1[0],s1[1]); g.lineTo(s2[0],s2[1]); g.stroke();
+        // grade de ventilação
+        g.strokeStyle='rgba(0,0,0,'+(0.35-n*0.2)+')';
+        for(let zz=z0+.32;zz<z1-.06;zz+=.035){ const a1=P(x,y+alto*.8,zz), a2=P(x,y+alto*.2,zz); g.beginPath(); g.moveTo(a1[0],a1[1]); g.lineTo(a2[0],a2[1]); g.stroke(); }
+        if(alto>.1) y+=.085;
+      }
+      // puxador aceso na borda da porta
+      const h1=P(x,.75,z0+.05), h2=P(x,-.25,z0+.05);
+      g.save(); g.shadowColor='rgba(80,160,255,1)'; g.shadowBlur=10*(1-n)+2; g.strokeStyle='rgba(120,190,255,'+(0.75-n*0.4)+')';
+      g.lineWidth=Math.max(1,2.4*(1-n)); g.beginPath(); g.moveTo(h1[0],h1[1]); g.lineTo(h2[0],h2[1]); g.stroke(); g.restore();
+      // LEDs: posições fixas, piscam no quadro
+      for(let y=PISO+.12;y<1.08;y+=.085){
+        if(rnd()<.25) continue;
+        const nL=2+Math.floor(rnd()*5), zi=z0+.07+rnd()*.12, cor=cores[Math.floor(rnd()*cores.length)];
+        for(let i=0;i<nL;i++){
+          const z=zi+i*.022, pt=P(x,y,z), tam=Math.min(3.2,Math.max(.9,.009/z*F));
+          CENA.leds.push({ x:pt[0], y:pt[1], t:tam, cor:(i===0&&rnd()<.3)?'rgba(74,222,128,1)':cor, a:(1-n*0.7), fase:rnd()*6.3, vel:.8+rnd()*4, fixo:rnd()<.4 });
+          if(y<-.3 && rnd()<.35){ const rf=P(x,2*PISO-y,z); CENA.leds.push({ x:rf[0], y:rf[1], t:tam*1.4, cor:cor, a:(1-n)*.09, fase:rnd()*6.3, vel:1, fixo:true }); }
+        }
+      }
+    });
+  });
+
+  // névoa e vinheta
+  let nv=g.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.55); nv.addColorStop(0,'rgba(70,140,255,.22)'); nv.addColorStop(1,'rgba(70,140,255,0)');
+  g.fillStyle=nv; g.fillRect(0,0,W,H);
+  let vg=g.createRadialGradient(cx,cy,Math.min(W,H)*.25,cx,cy,Math.max(W,H)*.75); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.72)');
+  g.fillStyle=vg; g.fillRect(0,0,W,H);
+}
+function quadroCena(ts){
+  CENA.raf=requestAnimationFrame(quadroCena);
+  if(ts-CENA.ultimo<90) return;   // ~11 quadros por segundo bastam para o pisca-pisca
+  CENA.ultimo=ts; desenharCena(ts/1000);
+}
+function desenharCena(tempo){
+  const c=CENA.ctx; if(!c||!CENA.fundo) return;
+  c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.drawImage(CENA.fundo,0,0);
+  c.setTransform(CENA.dpr,0,0,CENA.dpr,0,0); c.globalCompositeOperation='lighter';
+  CENA.leds.forEach(function(l){
+    let a=l.a;
+    if(!l.fixo){ const s=Math.sin(tempo*l.vel+l.fase); a*= s>.55 ? .15 : (.65+.35*s); }
+    c.globalAlpha=Math.max(0,Math.min(1,a));
+    const d=l.t*4.2; c.drawImage(spriteLed(l.cor),l.x-d/2,l.y-d/2,d,d);
+  });
+  c.globalCompositeOperation='source-over'; c.globalAlpha=1;
+}
+function iniciarCena(){
+  montarCena();
+  if(SEM_ANIMACAO){ desenharCena(0); return; }
+  cancelAnimationFrame(CENA.raf); CENA.ultimo=0; CENA.raf=requestAnimationFrame(quadroCena);
+}
+function pararCena(){ cancelAnimationFrame(CENA.raf); CENA.raf=0; }
+window.addEventListener('resize',function(){
+  if($('#login').classList.contains('oculto')) return;
+  clearTimeout(CENA._r); CENA._r=setTimeout(function(){ montarCena(); if(SEM_ANIMACAO) desenharCena(0); },150);
+});
+
 function mostrarLogin(){
   document.body.classList.add('bloqueado');
   $('#login').classList.remove('oculto','saindo');
   $('#lgSenha').value=''; $('#lgMsg').textContent=''; $('#lgMsg').className='msg';
   digitarBoot();
-  setTimeout(function(){ $('#lgSenha').focus(); },60);
+  setTimeout(function(){ const u=$('#lgUser'); u.focus(); u.setSelectionRange(u.value.length,u.value.length); },60);
+  iniciarCena();
 }
 $('#lgUser').addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); $('#lgSenha').focus(); } });
 $('#formLogin').addEventListener('submit',async function(ev){
@@ -567,7 +689,7 @@ $('#formLogin').addEventListener('submit',async function(ev){
   try{ sessionStorage.setItem(CHAVE_ACESSO,HASH_SENHA); }catch(e){}
   msg.className='msg ok'; msg.textContent='acesso concedido';
   setTimeout(function(){
-    $('#login').classList.add('saindo');
+    $('#login').classList.add('saindo'); pararCena();
     document.body.classList.remove('bloqueado');
     iniciar();
     setTimeout(function(){ $('#login').classList.add('oculto'); }, SEM_ANIMACAO?0:500);

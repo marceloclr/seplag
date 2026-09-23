@@ -6,7 +6,7 @@ Portal particular para pequenos projetos de trabalho da Cofip · Caexf (Célula 
 
 ## Como funciona
 
-- **Tela de senha** no estilo terminal. O campo *user* é opcional; só a senha é exigida. O código guarda apenas o SHA-256 da senha, e a liberação dura enquanto o navegador estiver aberto (`sessionStorage`). **Sair**, no alto, volta à tela de senha. Atenção: num site estático, essa senha é uma cortina contra quem abre o link por acaso, não uma proteção real. O código é público e os sistemas continuam acessíveis pelos próprios endereços.
+- **Tela de senha** no estilo terminal. O campo *user* já vem com `marceloclr` e com o cursor; só a senha é exigida. O fundo é um corredor de data center desenhado em canvas, com LEDs piscando. O código guarda apenas o SHA-256 da senha, e a liberação dura enquanto o navegador estiver aberto (`sessionStorage`). **Sair**, no alto, volta à tela de senha. Atenção: num site estático, essa senha é uma cortina contra quem abre o link por acaso, não uma proteção real. O código é público e os sistemas continuam acessíveis pelos próprios endereços.
 - Cada sistema abre numa **aba dentro do portal** (um iframe). Ao trocar de aba, o sistema continua carregado e o trabalho em memória não se perde.
 - **Início**: cartões dos sistemas com indicação de "no ar" e data da última publicação (lida do cabeçalho `Last-Modified` do Pages).
 - Barra do alto: abas abertas, **Recarregar**, **Nova janela** (abre o sistema numa aba do navegador), **Sair** e tema claro/escuro.
