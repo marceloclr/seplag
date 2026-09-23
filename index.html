@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal SEPLAG</title>
+<meta name="description" content="Portal dos sistemas da SEPLAG: abra Saneamento de MAPPs, SIPOG e outros sistemas em abas, sem decorar endereços.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fundo:#f4f6fb; --fundo-2:#eaeef7; --carta:#ffffff; --carta-2:#f8fafd;
+  --tinta:#141a2e; --tinta-2:#46506a; --tinta-3:#7a849c;
+  --linha:#e1e6f0; --linha-forte:#cbd3e2;
+  --topo:#0e1530; --topo-2:#18214a; --topo-tinta:#e8ecfb; --topo-tinta-2:#9aa6cf;
+  --foco:#6366f1; --ok:#16a34a; --erro:#dc2626; --alerta:#d97706;
+  --sombra:0 1px 2px rgba(20,26,46,.06),0 12px 32px -16px rgba(20,26,46,.28);
+  --sombra-alta:0 2px 4px rgba(20,26,46,.08),0 28px 60px -24px rgba(20,26,46,.45);
+  --raio:18px; --raio-p:10px;
+  --topo-alt:60px;
+}
+html[data-tema="escuro"]{
+  --fundo:#0b1022; --fundo-2:#10172f; --carta:#141c38; --carta-2:#18213f;
+  --tinta:#eef1fb; --tinta-2:#b7c0dc; --tinta-3:#8591b3;
+  --linha:#232d52; --linha-forte:#33406d;
+  --topo:#070b1a; --topo-2:#111936;
+  --sombra:0 1px 2px rgba(0,0,0,.4),0 12px 32px -16px rgba(0,0,0,.8);
+  --sombra-alta:0 2px 4px rgba(0,0,0,.5),0 28px 60px -24px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--fundo);color:var(--tinta);
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit}
+.oculto{display:none!important}
+:focus-visible{outline:2px solid var(--foco);outline-offset:2px;border-radius:8px}
+
+/* ------------------------------ Barra superior ------------------------------ */
+.topo{position:fixed;inset:0 0 auto 0;height:var(--topo-alt);z-index:20;display:flex;align-items:center;gap:10px;padding:0 14px;
+  background:linear-gradient(180deg,var(--topo-2),var(--topo));color:var(--topo-tinta)}
+.topo::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,#14b8a6,#22c55e,#eab308,#f97316,#ec4899,#8b5cf6,#6366f1)}
+.marca{display:flex;align-items:center;gap:10px;flex:none;text-decoration:none;color:inherit;border:0;background:none;cursor:pointer;padding:4px 6px}
+.marca .logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:conic-gradient(from 210deg,#14b8a6,#6366f1,#ec4899,#f97316,#14b8a6);box-shadow:0 4px 14px -4px rgba(99,102,241,.7)}
+.marca .logo span{width:26px;height:26px;border-radius:8px;background:var(--topo);display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:-.5px}
+.marca .nome{display:flex;flex-direction:column;line-height:1.1;text-align:left}
+.marca .nome b{font-size:15px;font-weight:800;letter-spacing:-.2px}
+.marca .nome small{font-size:10.5px;color:var(--topo-tinta-2);font-weight:500}
+.abas{flex:1;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;min-width:0;padding:0 2px;align-items:center;height:100%}
+.abas::-webkit-scrollbar{display:none}
+.aba{flex:none;display:flex;align-items:center;gap:8px;height:38px;padding:0 6px 0 12px;border-radius:12px;border:1px solid transparent;
+  background:rgba(255,255,255,.05);color:var(--topo-tinta-2);cursor:pointer;font-size:13px;font-weight:600;transition:background .15s,color .15s;max-width:240px}
+.aba:hover{background:rgba(255,255,255,.1);color:var(--topo-tinta)}
+.aba[aria-selected="true"]{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.18)}
+.aba .ponto{width:10px;height:10px;border-radius:50%;flex:none;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.aba .ponto.carregando{animation:pulsar 1s ease-in-out infinite}
+.aba .rot{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aba .x{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;border:0;background:none;cursor:pointer;opacity:.6;flex:none}
+.aba .x:hover{opacity:1;background:rgba(255,255,255,.14)}
+.aba.inicio{padding:0 12px}
+.acoes{display:flex;gap:4px;flex:none;align-items:center}
+.btn-topo{height:36px;min-width:36px;padding:0 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);
+  color:var(--topo-tinta);cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600}
+.btn-topo:hover{background:rgba(255,255,255,.12)}
+.btn-topo kbd{font:inherit;font-size:10.5px;color:var(--topo-tinta-2);border:1px solid rgba(255,255,255,.18);border-radius:5px;padding:0 5px}
+.sep{width:1px;height:24px;background:rgba(255,255,255,.14);margin:0 4px}
+@keyframes pulsar{50%{opacity:.35;transform:scale(.8)}}
+
+/* --------------------------------- Início --------------------------------- */
+.palco{position:fixed;inset:var(--topo-alt) 0 0 0}
+.inicio-pg{position:absolute;inset:0;overflow:auto}
+.heroi{position:relative;overflow:hidden;padding:44px 24px 34px}
+.heroi .bolhas{position:absolute;inset:-40% -10% auto -10%;height:170%;pointer-events:none;opacity:.55;filter:blur(40px);
+  -webkit-mask-image:linear-gradient(#000 45%,transparent 72%);mask-image:linear-gradient(#000 45%,transparent 72%)}
+.heroi .bolhas i{position:absolute;border-radius:50%}
+.heroi .bolhas i:nth-child(1){width:420px;height:420px;left:4%;top:8%;background:#14b8a6}
+.heroi .bolhas i:nth-child(2){width:380px;height:380px;left:38%;top:-6%;background:#8b5cf6}
+.heroi .bolhas i:nth-child(3){width:360px;height:360px;right:4%;top:14%;background:#f97316}
+html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
+.heroi .conteudo{position:relative;max-width:1120px;margin:0 auto}
+.heroi .data{font-size:13px;font-weight:600;color:var(--tinta-2)}
+.heroi h1{margin:6px 0 8px;font-size:clamp(28px,4.2vw,44px);line-height:1.08;letter-spacing:-1px;font-weight:800}
+.heroi h1 em{font-style:normal;background:linear-gradient(90deg,#0d9488,#6366f1 55%,#db2777);-webkit-background-clip:text;background-clip:text;color:transparent}
+.heroi p{margin:0;max-width:640px;color:var(--tinta-2);font-size:15.5px;line-height:1.55}
+.busca{margin-top:22px;max-width:560px;display:flex;align-items:center;gap:10px;padding:0 14px;height:50px;border-radius:14px;
+  background:var(--carta);border:1px solid var(--linha);box-shadow:var(--sombra)}
+.busca svg{flex:none;color:var(--tinta-3)}
+.busca input{flex:1;border:0;background:none;outline:none;font:inherit;font-size:15px;color:var(--tinta);min-width:0}
+.busca kbd{font:inherit;font-size:11px;color:var(--tinta-3);border:1px solid var(--linha-forte);border-radius:6px;padding:1px 6px}
+.busca:focus-within{border-color:var(--foco);box-shadow:0 0 0 4px rgba(99,102,241,.16),var(--sombra)}
+
+.secao{max-width:1120px;margin:0 auto;padding:6px 24px 28px}
+.secao h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3);font-weight:700;margin:12px 0 14px;display:flex;align-items:center;gap:10px}
+.secao h2::after{content:'';flex:1;height:1px;background:var(--linha)}
+.abertos{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--linha);background:var(--carta);
+  cursor:pointer;font-size:13px;font-weight:600;box-shadow:var(--sombra)}
+.chip:hover{border-color:var(--linha-forte)}
+.chip .ponto{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2))}
+
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.cartao{position:relative;display:flex;flex-direction:column;border-radius:var(--raio);background:var(--carta);border:1px solid var(--linha);
+  box-shadow:var(--sombra);overflow:hidden;transition:transform .2s ease,box-shadow .2s ease;animation:surgir .45s ease both}
+.cartao:hover{transform:translateY(-3px);box-shadow:var(--sombra-alta)}
+@keyframes surgir{from{opacity:0;transform:translateY(12px)}}
+.cartao .capa{position:relative;height:150px;padding:18px 20px;color:#fff;background:linear-gradient(135deg,var(--c1),var(--c2));overflow:hidden;cursor:pointer}
+.cartao .capa::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(circle at 85% -10%,rgba(255,255,255,.35),transparent 45%),
+  repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 2px,transparent 2px 14px)}
+.cartao .capa .icone{position:absolute;right:18px;bottom:-14px;opacity:.95;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25))}
+.cartao .capa .sigla{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
+.cartao .capa h3{position:relative;margin:14px 0 0;font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.1;max-width:70%}
+.cartao .corpo{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+.cartao .desc{margin:0;color:var(--tinta-2);font-size:14px;line-height:1.55}
+.etiquetas{display:flex;flex-wrap:wrap;gap:6px}
+.etiquetas span{font-size:11.5px;font-weight:600;color:var(--tinta-2);background:var(--fundo-2);border-radius:999px;padding:3px 10px}
+.estado{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tinta-3);font-weight:500}
+.estado .luz{width:8px;height:8px;border-radius:50%;background:var(--linha-forte)}
+.estado.ok .luz{background:var(--ok);box-shadow:0 0 0 4px rgba(22,163,74,.15)}
+.estado.erro .luz{background:var(--erro);box-shadow:0 0 0 4px rgba(220,38,38,.15)}
+.cartao .botoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:4px}
+.btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:11px;border:1px solid var(--linha-forte);
+  background:var(--carta);color:var(--tinta);font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:filter .15s,background .15s}
+.btn:hover{background:var(--carta-2)}
+.btn.principal{border:0;color:#fff;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 8px 20px -10px var(--c1)}
+.btn.principal:hover{filter:brightness(1.07)}
+.btn.leve{border-color:transparent;background:var(--fundo-2);color:var(--tinta-2)}
+.btn.icone-so{width:38px;padding:0;justify-content:center;margin-left:auto}
+.vazio{padding:40px;text-align:center;color:var(--tinta-3);border:2px dashed var(--linha);border-radius:var(--raio)}
+.rodape{max-width:1120px;margin:0 auto;padding:18px 24px 34px;color:var(--tinta-3);font-size:12.5px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+.rodape kbd{font:inherit;font-size:11px;border:1px solid var(--linha-forte);border-radius:5px;padding:0 5px}
+
+/* --------------------------------- Frames --------------------------------- */
+.painel{position:absolute;inset:0;background:var(--fundo)}
+.painel iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+.painel .espera{position:absolute;inset:0;display:grid;place-items:center;background:var(--fundo);transition:opacity .3s}
+.painel .espera.sumir{opacity:0;pointer-events:none}
+.espera .caixa{display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--tinta-2);font-weight:600;font-size:14px}
+.espera .anel{width:54px;height:54px;border-radius:50%;background:conic-gradient(var(--c1),var(--c2),transparent 75%);animation:girar .9s linear infinite;
+  -webkit-mask:radial-gradient(circle,transparent 18px,#000 19px);mask:radial-gradient(circle,transparent 18px,#000 19px)}
+@keyframes girar{to{transform:rotate(1turn)}}
+
+/* --------------------------------- Diálogo -------------------------------- */
+.veu{position:fixed;inset:0;z-index:40;background:rgba(8,12,28,.55);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px}
+.dialogo{width:min(420px,100%);background:var(--carta);border-radius:var(--raio);box-shadow:var(--sombra-alta);padding:22px;border:1px solid var(--linha)}
+.dialogo h3{margin:0 0 8px;font-size:18px}
+.dialogo p{margin:0 0 18px;color:var(--tinta-2);font-size:14px;line-height:1.55}
+.dialogo .botoes{display:flex;justify-content:flex-end;gap:8px}
+.dialogo .btn.perigo{border:0;color:#fff;background:linear-gradient(135deg,#dc2626,#e11d48)}
+
+@media(max-width:720px){
+  .marca .nome,.btn-topo .txt,.btn-topo kbd,.sep{display:none}
+  .topo{padding:0 8px;gap:6px}
+  .heroi{padding:30px 16px 24px}
+  .secao,.rodape{padding-left:16px;padding-right:16px}
+  .aba{max-width:160px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <button class="marca" id="marca" title="Início (Alt+0)" aria-label="Portal SEPLAG — início">
+    <span class="logo" aria-hidden="true"><span>S</span></span>
+    <span class="nome"><b>Portal SEPLAG</b><small>Sistemas em um só lugar</small></span>
+  </button>
+  <nav class="abas" id="abas" role="tablist" aria-label="Sistemas abertos"></nav>
+  <div class="acoes">
+    <span id="acoesSistema" class="acoes oculto">
+      <button class="btn-topo" id="btnRecarregar" title="Recarregar o sistema desta aba"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span class="txt">Recarregar</span></button>
+      <button class="btn-topo" id="btnJanela" title="Abrir este sistema numa aba do navegador"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg><span class="txt">Nova janela</span></button>
+      <span class="sep"></span>
+    </span>
+    <button class="btn-topo" id="btnBusca" title="Buscar sistema (Ctrl+K)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="txt">Buscar</span><kbd>Ctrl K</kbd></button>
+    <button class="btn-topo" id="btnTema" title="Alternar tema claro e escuro" aria-label="Alternar tema"><svg id="icoTema" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg></button>
+  </div>
+</header>
+
+<div class="palco" id="palco">
+  <main class="inicio-pg" id="inicio">
+    <section class="heroi">
+      <div class="bolhas" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="conteudo">
+        <div class="data" id="hoje"></div>
+        <h1 id="saudacao">Bom dia! <em>Seus sistemas</em>, num só lugar.</h1>
+        <p>Abra qualquer sistema da SEPLAG sem decorar endereços. Cada um abre numa aba aqui dentro, e o trabalho continua lá quando você troca de aba.</p>
+        <label class="busca">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="busca" type="search" placeholder="Buscar sistema, assunto ou sigla…" autocomplete="off" aria-label="Buscar sistema">
+          <kbd>Ctrl K</kbd>
+        </label>
+      </div>
+    </section>
+    <section class="secao oculto" id="secAbertos">
+      <h2>Abertos agora</h2>
+      <div class="abertos" id="abertos"></div>
+    </section>
+    <section class="secao">
+      <h2 id="tituloGrade">Sistemas</h2>
+      <div class="grade" id="grade"></div>
+    </section>
+    <footer class="rodape">
+      <span>Governo do Estado do Ceará · Secretaria do Planejamento e Gestão</span>
+      <span>Atalhos: <kbd>Ctrl K</kbd> buscar · <kbd>Alt 0</kbd> início · <kbd>Alt 1–9</kbd> abas</span>
+    </footer>
+  </main>
+</div>
+
+<div class="veu oculto" id="veu">
+  <div class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="dlgTitulo" aria-describedby="dlgTexto">
+    <h3 id="dlgTitulo">Fechar a aba?</h3>
+    <p id="dlgTexto"></p>
+    <div class="botoes">
+      <button class="btn" id="dlgCancelar">Cancelar</button>
+      <button class="btn perigo" id="dlgConfirmar">Fechar aba</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ==========================================================================
+   Portal SEPLAG — cadastro dos sistemas.
+   Para incluir um sistema, acrescente um objeto a SISTEMAS. `extras` são
+   entradas secundárias que também abrem em aba própria dentro do portal.
+   ========================================================================== */
+const SISTEMAS = [
+  { id:'saneamento', nome:'Saneamento de MAPPs', sigla:'Webmapp',
+    url:'https://marceloclr.github.io/saneamento/',
+    descricao:'Importa a base de execução, enquadra os MAPPs nas Regras 1 a 4, apura o saldo do programado e conduz manifestação, decisão e resultado do saneamento.',
+    etiquetas:['Diagnóstico','Saldo por exercício','Manifestação','Auditoria'],
+    cores:['#0f766e','#22c55e'], icone:'saneamento',
+    extras:[
+      { id:'saneamento-essencial', nome:'Saneamento · Essencial', rotulo:'Essencial', url:'https://marceloclr.github.io/saneamento/simplificado/' },
+      { id:'saneamento-manual', nome:'Saneamento · Manual', rotulo:'Manual', url:'https://marceloclr.github.io/saneamento/manual.html' }
+    ] },
+  { id:'sipog', nome:'SIPOG', sigla:'Orçamento',
+    url:'https://marceloclr.github.io/sipog/',
+    descricao:'Sistema de Projeção Orçamentária e Gestão Financeira: projeções, acompanhamento e gestão financeira do orçamento.',
+    etiquetas:['Projeção orçamentária','Gestão financeira'],
+    cores:['#4f46e5','#c026d3'], icone:'sipog' }
+];
+
+const ICONES = {
+  saneamento:'<svg width="112" height="112" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="8" width="36" height="46" rx="6" fill="rgba(255,255,255,.14)"/><path d="M18 20h20M18 29h20M18 38h11"/><circle cx="44" cy="44" r="11" fill="rgba(255,255,255,.22)"/><path d="m39 44 4 4 7-8"/></svg>',
+  sipog:'<svg width="112" height="112" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="10" width="48" height="42" rx="6" fill="rgba(255,255,255,.14)"/><path d="M16 42V32M26 42V24M36 42V28M46 42V18"/><path d="m15 24 11-8 10 5 12-9"/></svg>'
+};
+const SOL='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+const LUA='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+
+const $=function(s,r){ return (r||document).querySelector(s); };
+const esc=function(s){ return String(s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+
+/* Destinos abríveis: cada sistema e cada extra, com as cores do sistema. */
+const DESTINOS = {};
+SISTEMAS.forEach(function(s){
+  DESTINOS[s.id]={ id:s.id, nome:s.nome, url:s.url, cores:s.cores };
+  (s.extras||[]).forEach(function(x){ DESTINOS[x.id]={ id:x.id, nome:x.nome, url:x.url, cores:s.cores }; });
+});
+
+/* Estado: abas abertas (na ordem) e a ativa; 'inicio' é a vitrine. */
+const E = { abertas:[], ativa:'inicio', paineis:{}, carregado:{} };
+
+/* Preferências deste navegador (tema e abas abertas); nada disso é essencial. */
+const CHAVE='seplag.portal';
+function lerPref(){ try{ return JSON.parse(localStorage.getItem(CHAVE)||'{}')||{}; }catch(e){ return {}; } }
+function gravarPref(){ try{ localStorage.setItem(CHAVE,JSON.stringify({ tema:document.documentElement.dataset.tema, abertas:E.abertas, ativa:E.ativa })); }catch(e){} }
+
+/* ----------------------------------- Tema ---------------------------------- */
+function aplicarTema(t){
+  document.documentElement.dataset.tema=t;
+  $('#icoTema').innerHTML = t==='escuro' ? SOL : LUA;
+}
+$('#btnTema').addEventListener('click',function(){
+  aplicarTema(document.documentElement.dataset.tema==='escuro'?'claro':'escuro'); gravarPref();
+});
+
+/* --------------------------------- Vitrine --------------------------------- */
+function montarVitrine(){
+  const d=new Date(), h=d.getHours();
+  const dt=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('#hoje').textContent=dt.charAt(0).toUpperCase()+dt.slice(1);
+  $('#saudacao').innerHTML=(h<12?'Bom dia!':h<18?'Boa tarde!':'Boa noite!')+' <em>Seus sistemas</em>, num só lugar.';
+  $('#grade').innerHTML=SISTEMAS.map(function(s,i){
+    const estilo='--c1:'+s.cores[0]+';--c2:'+s.cores[1]+';animation-delay:'+(i*70)+'ms';
+    return '<article class="cartao" data-sistema="'+s.id+'" style="'+estilo+'">'+
+      '<div class="capa" data-abrir="'+s.id+'" title="Abrir '+esc(s.nome)+'">'+
+        '<span class="sigla">'+esc(s.sigla)+'</span><h3>'+esc(s.nome)+'</h3>'+
+        '<span class="icone" aria-hidden="true">'+(ICONES[s.icone]||'')+'</span></div>'+
+      '<div class="corpo">'+
+        '<p class="desc">'+esc(s.descricao)+'</p>'+
+        '<div class="etiquetas">'+s.etiquetas.map(function(t){ return '<span>'+esc(t)+'</span>'; }).join('')+'</div>'+
+        '<div class="estado" data-estado="'+s.id+'"><i class="luz"></i><span>verificando…</span></div>'+
+        '<div class="botoes">'+
+          '<button class="btn principal" data-abrir="'+s.id+'">Abrir <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>'+
+          (s.extras||[]).map(function(x){ return '<button class="btn leve" data-abrir="'+x.id+'" title="'+esc(x.nome)+'">'+esc(x.rotulo)+'</button>'; }).join('')+
+          '<a class="btn leve icone-so" href="'+esc(s.url)+'" target="_blank" rel="noopener" title="Abrir numa aba do navegador" aria-label="Abrir '+esc(s.nome)+' numa aba do navegador"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg></a>'+
+        '</div></div></article>';
+  }).join('');
+  SISTEMAS.forEach(verificarEstado);
+}
+
+/* “No ar” e data da última publicação, pelo cabeçalho Last-Modified do Pages. */
+function verificarEstado(s){
+  const el=document.querySelector('[data-estado="'+s.id+'"]'); if(!el) return;
+  fetch(s.url,{method:'HEAD',cache:'no-store'}).then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    const lm=r.headers.get('last-modified');
+    el.className='estado ok';
+    el.querySelector('span').textContent='No ar'+(lm?' · atualizado em '+new Date(lm).toLocaleDateString('pt-BR'):'');
+  }).catch(function(){
+    el.className='estado erro';
+    el.querySelector('span').textContent='Sem resposta agora · tente abrir mesmo assim';
+  });
+}
+
+function filtrar(){
+  const q=$('#busca').value.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+  let vis=0;
+  document.querySelectorAll('.cartao').forEach(function(c){
+    const s=SISTEMAS.find(function(x){ return x.id===c.dataset.sistema; });
+    const txt=[s.nome,s.sigla,s.descricao].concat(s.etiquetas,(s.extras||[]).map(function(x){ return x.rotulo; })).join(' ')
+      .normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+    const ok=!q || q.split(/\s+/).every(function(p){ return txt.indexOf(p)>=0; });
+    c.classList.toggle('oculto',!ok); if(ok) vis++;
+  });
+  let v=$('#nadaEncontrado');
+  if(!vis){
+    if(!v){ v=document.createElement('div'); v.id='nadaEncontrado'; v.className='vazio'; $('#grade').after(v); }
+    v.textContent='Nenhum sistema corresponde a “'+$('#busca').value+'”.';
+  } else if(v) v.remove();
+  $('#tituloGrade').textContent = q ? 'Resultado da busca' : 'Sistemas';
+}
+$('#busca').addEventListener('input',filtrar);
+$('#busca').addEventListener('keydown',function(ev){
+  if(ev.key!=='Enter') return;
+  const c=document.querySelector('.cartao:not(.oculto)'); if(c) abrir(c.dataset.sistema);
+});
+
+/* ----------------------------------- Abas ---------------------------------- */
+function desenharAbas(){
+  $('#abas').innerHTML=
+    '<button class="aba inicio" role="tab" data-ir="inicio" aria-selected="'+(E.ativa==='inicio')+'" title="Início (Alt+0)">'+
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><span class="rot">Início</span></button>'+
+    E.abertas.map(function(id,i){
+      const d=DESTINOS[id];
+      return '<div class="aba" role="tab" tabindex="0" data-ir="'+id+'" aria-selected="'+(E.ativa===id)+'" style="--c1:'+d.cores[0]+';--c2:'+d.cores[1]+'" title="'+esc(d.nome)+(i<9?' (Alt+'+(i+1)+')':'')+'">'+
+        '<i class="ponto'+(E.paineis[id]&&!E.carregado[id]?' carregando':'')+'"></i><span class="rot">'+esc(d.nome)+'</span>'+
+        '<button class="x" data-fechar="'+id+'" aria-label="Fechar '+esc(d.nome)+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>';
+    }).join('');
+  const sel=$('#abas [aria-selected="true"]'); if(sel) sel.scrollIntoView({block:'nearest',inline:'nearest'});
+  // faixa “Abertos agora” na vitrine
+  $('#secAbertos').classList.toggle('oculto',!E.abertas.length);
+  $('#abertos').innerHTML=E.abertas.map(function(id){
+    const d=DESTINOS[id];
+    return '<button class="chip" data-ir="'+id+'" style="--c1:'+d.cores[0]+';--c2:'+d.cores[1]+'"><i class="ponto"></i>'+esc(d.nome)+'</button>';
+  }).join('');
+  $('#acoesSistema').classList.toggle('oculto',E.ativa==='inicio');
+}
+
+/* O iframe nasce na primeira ativação e depois só é escondido: trocar de aba
+   não recarrega o sistema nem perde o que está em memória. */
+function painel(id){
+  if(E.paineis[id]) return E.paineis[id];
+  const d=DESTINOS[id];
+  const p=document.createElement('section');
+  p.className='painel oculto'; p.dataset.painel=id;
+  p.style.cssText='--c1:'+d.cores[0]+';--c2:'+d.cores[1];
+  p.innerHTML='<div class="espera"><div class="caixa"><div class="anel"></div>Abrindo '+esc(d.nome)+'…</div></div>';
+  const f=document.createElement('iframe');
+  f.title=d.nome; f.src=d.url;
+  f.setAttribute('allow','clipboard-read; clipboard-write; fullscreen');
+  f.addEventListener('load',function(){ E.carregado[id]=true; p.querySelector('.espera').classList.add('sumir'); desenharAbas(); });
+  p.prepend(f);
+  $('#palco').appendChild(p);
+  E.paineis[id]=p;
+  return p;
+}
+
+function ativar(id,semHistorico){
+  if(id!=='inicio' && !DESTINOS[id]) id='inicio';
+  if(id!=='inicio' && E.abertas.indexOf(id)<0) E.abertas.push(id);
+  E.ativa=id;
+  $('#inicio').classList.toggle('oculto',id!=='inicio');
+  Object.keys(E.paineis).forEach(function(k){ E.paineis[k].classList.toggle('oculto',k!==id); });
+  if(id!=='inicio'){ painel(id).classList.remove('oculto'); document.title=DESTINOS[id].nome+' · Portal SEPLAG'; }
+  else document.title='Portal SEPLAG';
+  const h= id==='inicio' ? '#/' : '#/'+id;
+  if(!semHistorico && location.hash!==h) history.pushState(null,'',h);
+  desenharAbas(); gravarPref();
+}
+function abrir(id){ ativar(id); }
+
+function fecharAba(id){
+  const i=E.abertas.indexOf(id); if(i<0) return;
+  E.abertas.splice(i,1);
+  if(E.paineis[id]){ E.paineis[id].remove(); delete E.paineis[id]; delete E.carregado[id]; }
+  if(E.ativa===id) ativar(E.abertas[i]||E.abertas[i-1]||'inicio');
+  else { desenharAbas(); gravarPref(); }
+}
+/* Confirma só se o sistema chegou a ser carregado nesta sessão (pode haver trabalho em memória). */
+function pedirFechamento(id){
+  if(!E.paineis[id]){ fecharAba(id); return; }
+  $('#dlgTexto').textContent='O que estiver aberto em “'+DESTINOS[id].nome+'” e ainda não foi salvo será perdido.';
+  $('#veu').classList.remove('oculto'); $('#dlgConfirmar').focus();
+  $('#dlgConfirmar').onclick=function(){ fecharDialogo(); fecharAba(id); };
+}
+function fecharDialogo(){ $('#veu').classList.add('oculto'); }
+$('#dlgCancelar').addEventListener('click',fecharDialogo);
+$('#veu').addEventListener('click',function(ev){ if(ev.target.id==='veu') fecharDialogo(); });
+
+/* ------------------------------- Eventos ------------------------------------ */
+document.addEventListener('click',function(ev){
+  const x=ev.target.closest('[data-fechar]'); if(x){ ev.stopPropagation(); pedirFechamento(x.dataset.fechar); return; }
+  const a=ev.target.closest('[data-abrir]'); if(a){ abrir(a.dataset.abrir); return; }
+  const ir=ev.target.closest('[data-ir]'); if(ir){ ativar(ir.dataset.ir); }
+});
+$('#abas').addEventListener('keydown',function(ev){
+  const t=ev.target.closest('[data-ir]'); if(!t) return;
+  if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); ativar(t.dataset.ir); }
+  if(ev.key==='Delete' && t.dataset.ir!=='inicio') pedirFechamento(t.dataset.ir);
+});
+$('#abas').addEventListener('auxclick',function(ev){   // botão do meio fecha a aba
+  const t=ev.target.closest('[data-ir]'); if(ev.button===1 && t && t.dataset.ir!=='inicio'){ ev.preventDefault(); pedirFechamento(t.dataset.ir); }
+});
+$('#marca').addEventListener('click',function(){ ativar('inicio'); });
+$('#btnBusca').addEventListener('click',focarBusca);
+$('#btnRecarregar').addEventListener('click',function(){
+  const p=E.paineis[E.ativa]; if(!p) return;
+  E.carregado[E.ativa]=false; p.querySelector('.espera').classList.remove('sumir'); desenharAbas();
+  p.querySelector('iframe').src=DESTINOS[E.ativa].url;
+});
+$('#btnJanela').addEventListener('click',function(){ if(DESTINOS[E.ativa]) window.open(DESTINOS[E.ativa].url,'_blank','noopener'); });
+
+function focarBusca(){ ativar('inicio'); setTimeout(function(){ $('#busca').focus(); $('#busca').select(); },30); }
+document.addEventListener('keydown',function(ev){
+  if(!$('#veu').classList.contains('oculto') && ev.key==='Escape'){ fecharDialogo(); return; }
+  if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='k'){ ev.preventDefault(); focarBusca(); return; }
+  if(ev.altKey && /^[0-9]$/.test(ev.key)){
+    ev.preventDefault();
+    const n=+ev.key; ativar(n===0?'inicio':(E.abertas[n-1]||E.ativa));
+  }
+});
+window.addEventListener('popstate',function(){ ativar(rotaAtual(),true); });
+function rotaAtual(){ const m=location.hash.match(/^#\/(.+)$/); return m&&DESTINOS[m[1]] ? m[1] : 'inicio'; }
+
+/* ------------------------------- Início ------------------------------------- */
+(function iniciar(){
+  const pref=lerPref();
+  aplicarTema(pref.tema || (matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro'));
+  montarVitrine();
+  // reabre as abas da última visita (o sistema só carrega quando a aba for ativada)
+  E.abertas=(pref.abertas||[]).filter(function(id){ return DESTINOS[id]; });
+  const alvo = location.hash ? rotaAtual() : (pref.ativa && DESTINOS[pref.ativa] ? pref.ativa : 'inicio');
+  ativar(alvo,true);
+  history.replaceState(null,'',alvo==='inicio'?'#/':'#/'+alvo);
+})();
+</script>
+</body>
+</html>
