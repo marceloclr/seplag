@@ -525,9 +525,8 @@ async function sha256(txt){
 }
 const SEM_ANIMACAO=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function digitarBoot(){
-  /* linha de último acesso, como num terminal de verdade (guardada neste navegador) */
-  let ultimo=''; try{ ultimo=localStorage.getItem('gfp.ultimoAcesso')||''; }catch(e){}
-  const quando= ultimo ? 'último acesso: '+new Date(ultimo).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}) : 'primeiro acesso neste terminal';
+  const agora=new Date();
+  const quando='acessando em '+agora.toLocaleDateString('pt-BR')+' às '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   const linhas=[['u','root@sysboot:~$ '],['','./portal --login\n'],['','Portal de Gestão Financeira e Projetos\n'],['','Sistemas de Gestão Pública\n'],['t',quando+' · autenticação requerida']];
   const alvo=$('#boot'); alvo.innerHTML='';
   if(SEM_ANIMACAO){ alvo.innerHTML=linhas.map(function(l){ return l[0]?'<span class="'+l[0]+'">'+esc(l[1])+'</span>':esc(l[1]); }).join(''); return; }
@@ -548,21 +547,24 @@ function digitarBoot(){
 const CENA={ ctx:null, fundo:null, leds:[], sprites:{}, raf:0, ultimo:0, w:0, h:0, dpr:1 };
 function aleatorio(semente){ return function(){ semente|=0; semente=semente+0x6D2B79F5|0; let x=Math.imul(semente^semente>>>15,1|semente);
   x=x+Math.imul(x^x>>>7,61|x)^x; return ((x^x>>>14)>>>0)/4294967296; }; }
+const NUCLEO={ 'rgba(56,189,248,1)':'#bdeeff', 'rgba(96,165,250,1)':'#cfe0ff', 'rgba(125,211,252,1)':'#e3f7ff', 'rgba(74,222,128,1)':'#c9ffd9' };
 function spriteLed(cor){
   if(CENA.sprites[cor]) return CENA.sprites[cor];
   const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d');
-  const r=g.createRadialGradient(32,32,0,32,32,32);
-  r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(.12,cor); r.addColorStop(.35,cor.replace(/[\d.]+\)$/,'.35)')); r.addColorStop(1,'rgba(0,0,0,0)');
+  const r=g.createRadialGradient(32,32,0,32,32,32);   // só o halo; o núcleo é desenhado à parte, nítido
+  r.addColorStop(0,cor.replace(/[\d.]+\)$/,'.9)')); r.addColorStop(.18,cor.replace(/[\d.]+\)$/,'.45)')); r.addColorStop(.5,cor.replace(/[\d.]+\)$/,'.1)')); r.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle=r; g.fillRect(0,0,64,64); return (CENA.sprites[cor]=c);
 }
 function montarCena(){
   const cv=$('#cena'); if(!cv) return;
-  const dpr=Math.min(2,window.devicePixelRatio||1), W=cv.clientWidth, H=cv.clientHeight;
+  const dpr=Math.min(3,window.devicePixelRatio||1), W=cv.clientWidth, H=cv.clientHeight;
   CENA.w=W; CENA.h=H; CENA.dpr=dpr;
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
-  CENA.ctx=cv.getContext('2d');
-  const f=document.createElement('canvas'); f.width=cv.width; f.height=cv.height;
-  const g=f.getContext('2d'); g.scale(dpr,dpr); CENA.fundo=f;
+  CENA.ctx=cv.getContext('2d'); CENA.ctx.imageSmoothingQuality='high';
+  /* o cenário fixo é pintado em resolução acima da tela: com a aproximação da câmera ele continua nítido */
+  const SS=Math.min(4,dpr*1.5);
+  const f=document.createElement('canvas'); f.width=Math.round(W*SS); f.height=Math.round(H*SS);
+  const g=f.getContext('2d'); g.scale(SS,SS); CENA.fundo=f;
   /* escala horizontal e vertical separadas: em tela em pé o corredor estreita sem perder os racks */
   const FY=H*0.78, FX=Math.min(FY,W*0.62), F=FX, cx=W/2, cy=H*0.46, XR=1.25, PISO=-1, TETO=1.3, ZMAX=17;
   const P=function(x,y,z){ return [cx+x/z*FX, cy-y/z*FY]; };
@@ -626,9 +628,18 @@ function montarCena(){
         const s1=P(x,y+alto,z0+.04), s2=P(x,y+alto,z1-.04), s3=P(x,y,z1-.04), s4=P(x,y,z0+.04);
         quad(s1,s2,s3,s4); g.fillStyle='rgba('+Math.round(14+34*n)+','+Math.round(24+56*n)+','+Math.round(46+96*n)+','+(0.9)+')'; g.fill();
         g.strokeStyle='rgba(150,190,255,'+(0.16-n*0.1)+')'; g.beginPath(); g.moveTo(s1[0],s1[1]); g.lineTo(s2[0],s2[1]); g.stroke();
-        // grade de ventilação
-        g.strokeStyle='rgba(0,0,0,'+(0.35-n*0.2)+')';
-        for(let zz=z0+.32;zz<z1-.06;zz+=.035){ const a1=P(x,y+alto*.8,zz), a2=P(x,y+alto*.2,zz); g.beginPath(); g.moveTo(a1[0],a1[1]); g.lineTo(a2[0],a2[1]); g.stroke(); }
+        if(rnd()<.5){
+          // baias de disco: gavetas com borda clara
+          for(let zz=z0+.3;zz<z1-.07;zz+=.034){
+            const b1=P(x,y+alto*.85,zz), b2=P(x,y+alto*.85,zz+.028), b3=P(x,y+alto*.15,zz+.028), b4=P(x,y+alto*.15,zz);
+            quad(b1,b2,b3,b4); g.fillStyle='rgba(2,6,16,'+(0.55-n*0.3)+')'; g.fill();
+            g.strokeStyle='rgba(160,195,255,'+(0.2-n*0.13)+')'; g.lineWidth=.6; g.stroke();
+          }
+        } else {
+          // grade de ventilação
+          g.strokeStyle='rgba(0,0,0,'+(0.45-n*0.25)+')';
+          for(let zz=z0+.32;zz<z1-.06;zz+=.028){ const a1=P(x,y+alto*.8,zz), a2=P(x,y+alto*.2,zz); g.beginPath(); g.moveTo(a1[0],a1[1]); g.lineTo(a2[0],a2[1]); g.stroke(); }
+        }
         if(alto>.1) y+=.085;
       }
       // puxador aceso na borda da porta
@@ -642,14 +653,23 @@ function montarCena(){
         for(let i=0;i<nL;i++){
           const z=zi+i*.022, pt=P(x,y,z), tam=Math.min(3.2,Math.max(.9,.009/z*F));
           const sorte=rnd(); CENA.leds.push({ x:pt[0], y:pt[1], t:tam, cor:(i===0&&rnd()<.3)?'rgba(74,222,128,1)':cor, a:(1-n*0.7), fase:rnd()*6.3, vel:.4+rnd()*1.2, tipo: sorte<.42?'fixo':(sorte<.85?'ativ':'lento'), id:CENA.leds.length });
-          if(y<-.3 && rnd()<.35){ const rf=P(x,2*PISO-y,z); CENA.leds.push({ x:rf[0], y:rf[1], t:tam*1.4, cor:cor, a:(1-n)*.09, fase:rnd()*6.3, vel:1, tipo:'fixo', id:CENA.leds.length }); }
+          if(y<-.3 && rnd()<.35){ const rf=P(x,2*PISO-y,z); CENA.leds.push({ x:rf[0], y:rf[1], t:tam*1.4, cor:cor, a:(1-n)*.09, fase:rnd()*6.3, vel:1, tipo:'fixo', id:CENA.leds.length, reflexo:true }); }
         }
       }
     });
   });
 
+  // LEDs que não piscam (status e reflexos) vão direto para o cenário fixo
+  g.globalCompositeOperation='lighter';
+  CENA.leds=CENA.leds.filter(function(l){
+    if(l.tipo!=='fixo') return true;
+    const d=l.t*3.6; g.globalAlpha=l.a*.8; g.drawImage(spriteLed(l.cor),l.x-d/2,l.y-d/2,d,d);
+    if(!l.reflexo){ const s=Math.max(.8,l.t*.62); g.globalAlpha=l.a; g.fillStyle=NUCLEO[l.cor]||'#e0f2fe'; g.fillRect(l.x-s/2,l.y-s*.4,s,s*.8); }
+    return false;
+  });
+  g.globalCompositeOperation='source-over'; g.globalAlpha=1;
   // névoa e vinheta
-  let nv=g.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.55); nv.addColorStop(0,'rgba(70,140,255,.22)'); nv.addColorStop(1,'rgba(70,140,255,0)');
+  let nv=g.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.55); nv.addColorStop(0,'rgba(70,140,255,.12)'); nv.addColorStop(1,'rgba(70,140,255,0)');
   g.fillStyle=nv; g.fillRect(0,0,W,H);
   let vg=g.createRadialGradient(cx,cy,Math.min(W,H)*.25,cx,cy,Math.max(W,H)*.75); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.72)');
   g.fillStyle=vg; g.fillRect(0,0,W,H);
@@ -665,7 +685,7 @@ function desenharCena(tempo){
   const c=CENA.ctx; if(!c||!CENA.fundo) return;
   const W=CENA.w, H=CENA.h, dpr=CENA.dpr;
   // câmera: aproximação lenta pelo corredor, vai e volta a cada 28 s
-  const zoom=1.02+.02*Math.sin(tempo*2*Math.PI/28), ox=CENA.cx*(1-zoom), oy=CENA.cy*(1-zoom);
+  const zoom=1.012+.012*Math.sin(tempo*2*Math.PI/28), ox=CENA.cx*(1-zoom), oy=CENA.cy*(1-zoom);
   c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.fillStyle='#01040c'; c.fillRect(0,0,c.canvas.width,c.canvas.height);
   c.setTransform(dpr*zoom,0,0,dpr*zoom,dpr*ox,dpr*oy);
   c.drawImage(CENA.fundo,0,0,W,H);
@@ -675,14 +695,24 @@ function desenharCena(tempo){
   gl.addColorStop(0,'rgba(110,170,255,'+(.10+.08*res)+')'); gl.addColorStop(1,'rgba(110,170,255,0)');
   c.globalCompositeOperation='lighter'; c.fillStyle=gl; c.fillRect(0,0,W,H);
   // LEDs: status acesos, atividade de disco/rede em rajadas, alguns respirando
+  const lotes={};
   CENA.leds.forEach(function(l){
     let a=l.a;
     if(l.tipo==='ativ'){
       const rajada=ruido(Math.floor(tempo*.7+l.fase)+l.id*.37)>.45;              // períodos de atividade
       a*= rajada ? (ruido(Math.floor(tempo*14)+l.id*1.7)>.35 ? 1 : .12) : .9;   // pisca rápido na rajada
     } else if(l.tipo==='lento'){ a*=.35+.65*(.5+.5*Math.sin(tempo*l.vel*2+l.fase)); }
-    c.globalAlpha=Math.max(0,Math.min(1,a));
-    const d=l.t*4.2; c.drawImage(spriteLed(l.cor),l.x-d/2,l.y-d/2,d,d);
+    a=Math.max(0,Math.min(1,a)); if(a<.04) return;
+    if(l.t>=1.3){ const d=l.t*3.6; c.globalAlpha=a*.8; c.drawImage(spriteLed(l.cor),l.x-d/2,l.y-d/2,d,d); }
+    // núcleo nítido: agrupado por cor e intensidade para desenhar de uma vez
+    const k=l.cor+'|'+Math.round(a*4), s=Math.max(.8,l.t*.62);
+    (lotes[k]||(lotes[k]=[])).push(l.x-s/2,l.y-s*.4,s,s*.8);
+  });
+  Object.keys(lotes).forEach(function(k){
+    const r=lotes[k], sep=k.lastIndexOf('|');
+    c.globalAlpha=(+k.slice(sep+1))/4; c.fillStyle=NUCLEO[k.slice(0,sep)]||'#e0f2fe'; c.beginPath();
+    for(let i=0;i<r.length;i+=4) c.rect(r[i],r[i+1],r[i+2],r[i+3]);
+    c.fill();
   });
   // poeira em suspensão atravessando a luz
   const P=CENA.P;
@@ -764,7 +794,7 @@ $('#formLogin').addEventListener('submit',async function(ev){
     estadoTerm('erro'); if(navigator.vibrate) try{ navigator.vibrate([60,40,60]); }catch(e){}
     $('#lgSenha').value=''; $('#lgSenha').focus(); posicionarCursor(); return;
   }
-  try{ sessionStorage.setItem(CHAVE_ACESSO,HASH_SENHA); localStorage.setItem('gfp.ultimoAcesso',new Date().toISOString()); }catch(e){}
+  try{ sessionStorage.setItem(CHAVE_ACESSO,HASH_SENHA); }catch(e){}
   msg.className='msg ok'; msg.textContent='acesso concedido';
   estadoTerm('sucesso');
   setTimeout(function(){
