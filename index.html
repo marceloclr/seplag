@@ -524,7 +524,7 @@ function rotaAtual(){ const m=location.hash.match(/^#\/(.+)$/); return m&&DESTIN
 /* ---------------------------------- Senha ----------------------------------- */
 /* Cortina de acesso de um site estático: só o SHA-256 da senha fica no código.
    A liberação vale para a sessão do navegador (sessionStorage). */
-const HASH_SENHA='ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb';
+const HASH_SENHA='594e519ae499312b29433b7dd8a97ff068defcba9755b6d5d00e84c524d67b06';
 const CHAVE_ACESSO='gfp.acesso';
 function liberado(){ try{ return sessionStorage.getItem(CHAVE_ACESSO)===HASH_SENHA; }catch(e){ return false; } }
 async function sha256(txt){
