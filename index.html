@@ -164,6 +164,9 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
   backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);color:#cbd5e1;animation:surgir .5s ease both}
 .term{transition:border-color .2s}
 /* mesma vibração da tela de login do sistema de comunicação: erro treme com borda vermelha; acerto pulsa em verde */
+.term.aguardando{animation:aguardar 2.8s ease-in-out infinite}
+@keyframes aguardar{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 40px -12px rgba(59,130,246,.3);border-color:rgba(125,170,255,.28)}
+  50%{box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 70px -6px rgba(96,165,250,.6);border-color:rgba(147,197,253,.6)}}
 .term.erro{border-color:#f87171;animation:auth-shake .4s ease-in-out}
 .term.sucesso{border-color:#4ade80;animation:auth-success-pulse .5s ease-out}
 @keyframes auth-shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
@@ -215,7 +218,7 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
     <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>root@sysboot: ~/login</span></div>
     <div class="term-corpo">
       <div class="boot" id="boot" aria-hidden="true"></div>
-      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" value="root" placeholder="root" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
+      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="root" autocomplete="username" spellcheck="false" aria-label="Usuário (opcional)"></label>
       <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="password" autocomplete="current-password" aria-label="Senha"></label>
       <i class="cursor-t" id="cursorT" aria-hidden="true"></i><span class="medidor-t" id="medidorT" aria-hidden="true"></span>
       <div class="msg" id="lgMsg" role="status" aria-live="polite"></div>
@@ -547,7 +550,7 @@ function digitarBoot(){
 const CENA={ ctx:null, fundo:null, leds:[], sprites:{}, raf:0, ultimo:0, w:0, h:0, dpr:1 };
 function aleatorio(semente){ return function(){ semente|=0; semente=semente+0x6D2B79F5|0; let x=Math.imul(semente^semente>>>15,1|semente);
   x=x+Math.imul(x^x>>>7,61|x)^x; return ((x^x>>>14)>>>0)/4294967296; }; }
-const NUCLEO={ 'rgba(56,189,248,1)':'#bdeeff', 'rgba(96,165,250,1)':'#cfe0ff', 'rgba(125,211,252,1)':'#e3f7ff', 'rgba(74,222,128,1)':'#c9ffd9' };
+const NUCLEO={ 'rgba(226,236,255,1)':'#ffffff', 'rgba(74,222,128,1)':'#d4ffe0', 'rgba(251,146,60,1)':'#ffe2c7' };
 function spriteLed(cor){
   if(CENA.sprites[cor]) return CENA.sprites[cor];
   const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d');
@@ -608,7 +611,8 @@ function montarCena(){
 
   // racks: faces voltadas para o corredor, de longe para perto
   CENA.leds=[];
-  const cores=['rgba(56,189,248,1)','rgba(56,189,248,1)','rgba(56,189,248,1)','rgba(96,165,250,1)','rgba(125,211,252,1)','rgba(74,222,128,1)'];
+  // LEDs de servidor: branco (energia), verde (ok/atividade) e laranja (alerta), este mais raro
+  const cores=['rgba(226,236,255,1)','rgba(226,236,255,1)','rgba(74,222,128,1)','rgba(74,222,128,1)','rgba(74,222,128,1)','rgba(251,146,60,1)'];
   [-1,1].forEach(function(s){
     const racks=[];
     for(let z0=.75;z0<ZMAX-.3;z0+=.64) racks.push(z0);
@@ -652,7 +656,7 @@ function montarCena(){
         const nL=2+Math.floor(rnd()*5), zi=z0+.07+rnd()*.12, cor=cores[Math.floor(rnd()*cores.length)];
         for(let i=0;i<nL;i++){
           const z=zi+i*.022, pt=P(x,y,z), tam=Math.min(3.2,Math.max(.9,.009/z*F));
-          const sorte=rnd(); CENA.leds.push({ x:pt[0], y:pt[1], t:tam, cor:(i===0&&rnd()<.3)?'rgba(74,222,128,1)':cor, a:(1-n*0.7), fase:rnd()*6.3, vel:.4+rnd()*1.2, tipo: sorte<.42?'fixo':(sorte<.85?'ativ':'lento'), id:CENA.leds.length });
+          const sorte=rnd(); CENA.leds.push({ x:pt[0], y:pt[1], t:tam, cor:(i===0&&rnd()<.3)?'rgba(226,236,255,1)':cor, a:(1-n*0.7), fase:rnd()*6.3, vel:.4+rnd()*1.2, tipo: sorte<.42?'fixo':(sorte<.85?'ativ':'lento'), id:CENA.leds.length });
           if(y<-.3 && rnd()<.35){ const rf=P(x,2*PISO-y,z); CENA.leds.push({ x:rf[0], y:rf[1], t:tam*1.4, cor:cor, a:(1-n)*.09, fase:rnd()*6.3, vel:1, tipo:'fixo', id:CENA.leds.length, reflexo:true }); }
         }
       }
@@ -751,7 +755,8 @@ function mostrarLogin(){
   $('#login').classList.remove('oculto','saindo');
   $('#lgSenha').value=''; $('#lgMsg').textContent=''; $('#lgMsg').className='msg';
   digitarBoot();
-  setTimeout(function(){ const u=$('#lgUser'); u.focus(); u.setSelectionRange(u.value.length,u.value.length); posicionarCursor(); },60);
+  $('#formLogin').classList.add('aguardando');
+  setTimeout(function(){ const u=$('#lgUser'); u.focus(); posicionarCursor(); },60);
   iniciarCena();
 }
 /* Posiciona o bloco verde logo após o texto antes do cursor, no campo em foco. */
@@ -771,6 +776,7 @@ function posicionarCursor(){
   posicionarCursor._t=setTimeout(function(){ cur.classList.remove('parado'); },500);
   cur.dataset.campo=inp.id;
 }
+['#lgUser','#lgSenha'].forEach(function(s){ $(s).addEventListener('input',function(){ $('#formLogin').classList.remove('aguardando'); }); });
 ['focus','blur','input','keyup','click','select'].forEach(function(evn){
   ['#lgUser','#lgSenha'].forEach(function(s){ $(s).addEventListener(evn,function(){ setTimeout(posicionarCursor,0); }); });
 });
@@ -779,15 +785,26 @@ window.addEventListener('resize',function(){ setTimeout(posicionarCursor,60); })
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(posicionarCursor);
 if(window.ResizeObserver) new ResizeObserver(function(){ posicionarCursor(); }).observe($('#formLogin'));
 
+/* Recusa com a vibração do sistema de comunicação (borda vermelha e tremida). */
+function recusar(texto,foco){
+  const msg=$('#lgMsg'); msg.className='msg erro'; msg.textContent=texto;
+  estadoTerm('erro'); if(navigator.vibrate) try{ navigator.vibrate([60,40,60]); }catch(e){}
+  if(foco){ foco.focus(); setTimeout(posicionarCursor,0); }
+}
 function estadoTerm(cls){
-  const tm=$('#formLogin'); tm.classList.remove('erro','sucesso'); void tm.offsetWidth; tm.classList.add(cls);
+  const tm=$('#formLogin'); tm.classList.remove('erro','sucesso','aguardando'); void tm.offsetWidth; tm.classList.add(cls);
   if(cls==='erro') setTimeout(function(){ tm.classList.remove('erro'); },1600);
 }
-$('#lgUser').addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); $('#lgSenha').focus(); } });
+$('#lgUser').addEventListener('keydown',function(ev){
+  if(ev.key!=='Enter') return;
+  ev.preventDefault();
+  if(!$('#lgUser').value.trim() && !$('#lgSenha').value){ recusar('informe usuário e senha',$('#lgUser')); return; }
+  $('#lgSenha').focus();
+});
 $('#formLogin').addEventListener('submit',async function(ev){
   ev.preventDefault();
   const msg=$('#lgMsg'), senha=$('#lgSenha').value;
-  if(!senha){ msg.className='msg erro'; msg.textContent='informe a senha'; $('#lgSenha').focus(); return; }
+  if(!senha){ recusar('informe a senha',$('#lgSenha')); return; }
   if(!(window.crypto && crypto.subtle)){ msg.className='msg erro'; msg.textContent='abra o portal pelo endereço https'; return; }
   if(await sha256(senha)!==HASH_SENHA){
     msg.className='msg erro'; msg.textContent='acesso negado';
