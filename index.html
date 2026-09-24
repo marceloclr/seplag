@@ -224,7 +224,7 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
     <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>root@sysboot: ~/login</span></div>
     <div class="term-corpo">
       <div class="boot" id="boot" aria-hidden="true"></div>
-      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="root" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Usuário (opcional)"></label>
+      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="root" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Usuário"></label>
       <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Senha (caracteres ocultos)"></label>
       <i class="cursor-t" id="cursorT" aria-hidden="true"></i><span class="medidor-t" id="medidorT" aria-hidden="true"></span>
       <div class="msg" id="lgMsg" role="status" aria-live="polite"></div>
@@ -832,7 +832,8 @@ $('#formLogin').addEventListener('submit',async function(ev){
   const msg=$('#lgMsg'), senha=senhaDigitada;
   if(!senha){ recusar('informe a senha',$('#lgSenha')); return; }
   if(!(window.crypto && crypto.subtle)){ msg.className='msg erro'; msg.textContent='abra o portal pelo endereço https'; return; }
-  if(await sha256(senha)!==HASH_SENHA){
+  /* o acesso é só por senha: com o campo de usuário preenchido, nega como senha errada (sem dizer o motivo) */
+  if($('#lgUser').value!=='' || await sha256(senha)!==HASH_SENHA){
     msg.className='msg erro'; msg.textContent='acesso negado';
     estadoTerm('erro'); if(navigator.vibrate) try{ navigator.vibrate([60,40,60]); }catch(e){}
     limparSenha(); $('#lgSenha').focus(); posicionarCursor(); return;
