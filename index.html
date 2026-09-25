@@ -158,16 +158,31 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
   background:radial-gradient(ellipse 60% 50% at 50% 45%,rgba(37,99,235,.28),transparent 70%),linear-gradient(180deg,#020611,#061634 55%,#020611);
   font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;transition:opacity .5s ease}
 .login.saindo{opacity:0;pointer-events:none}
-.cena{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
-.term{position:relative;width:min(560px,100%);border-radius:12px;background:rgba(10,20,44,.62);border:1px solid rgba(125,170,255,.28);
-  box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 60px -10px rgba(59,130,246,.35);
+.term{position:relative;width:min(640px,100%);border-radius:12px;background:rgba(10,20,44,.62);border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9);
   backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);color:#cbd5e1}
 .term{transition:border-color .2s}
 /* mesma vibração da tela de login do sistema de comunicação: erro treme com borda vermelha; acerto pulsa em verde */
 /* a entrada só roda junto com a espera: ao digitar (sai "aguardando") ou depois do erro a caixa não reaparece do zero */
-.term.aguardando{animation:surgir .5s ease both,aguardar 2.8s ease-in-out .5s infinite}
-@keyframes aguardar{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 40px -12px rgba(59,130,246,.3);border-color:rgba(125,170,255,.28)}
-  50%{box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 30px 80px -20px rgba(0,0,0,.9),0 0 70px -6px rgba(96,165,250,.6);border-color:rgba(147,197,253,.6)}}
+.term.aguardando{animation:surgir .5s ease both}
+/* pulso de luz permanente, numa camada própria para não disputar com o tremor e o pulso verde:
+   um pulso de 2,5 s por cor, na ordem dos botões da barra (vermelho, amarelo, verde) e o azul original */
+.term::after{content:'';position:absolute;inset:-1px;border-radius:inherit;border:1px solid transparent;pointer-events:none;
+  animation:aguardar 10s ease-in-out infinite;transition:opacity .2s}
+.term.erro::after,.term.sucesso::after{opacity:0}
+@keyframes aguardar{
+  0%{border-color:rgba(248,113,113,.28);box-shadow:0 0 40px -12px rgba(248,113,113,.3)}
+  12.5%{border-color:rgba(252,165,165,.65);box-shadow:0 0 70px -6px rgba(248,113,113,.6)}
+  24.9%{border-color:rgba(248,113,113,.28);box-shadow:0 0 40px -12px rgba(248,113,113,.3)}
+  25%{border-color:rgba(250,204,21,.28);box-shadow:0 0 40px -12px rgba(250,204,21,.3)}
+  37.5%{border-color:rgba(253,224,71,.65);box-shadow:0 0 70px -6px rgba(250,204,21,.55)}
+  49.9%{border-color:rgba(250,204,21,.28);box-shadow:0 0 40px -12px rgba(250,204,21,.3)}
+  50%{border-color:rgba(74,222,128,.28);box-shadow:0 0 40px -12px rgba(74,222,128,.3)}
+  62.5%{border-color:rgba(134,239,172,.65);box-shadow:0 0 70px -6px rgba(74,222,128,.55)}
+  74.9%{border-color:rgba(74,222,128,.28);box-shadow:0 0 40px -12px rgba(74,222,128,.3)}
+  75%{border-color:rgba(125,170,255,.28);box-shadow:0 0 40px -12px rgba(59,130,246,.3)}
+  87.5%{border-color:rgba(147,197,253,.6);box-shadow:0 0 70px -6px rgba(96,165,250,.6)}
+  100%{border-color:rgba(125,170,255,.28);box-shadow:0 0 40px -12px rgba(59,130,246,.3)}}
 .term.erro{border-color:#f87171;animation:auth-shake .4s ease-in-out}
 .term.sucesso{border-color:#4ade80;animation:auth-success-pulse .5s ease-out}
 @keyframes auth-shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
@@ -176,8 +191,8 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 .term-barra .d{width:12px;height:12px;border-radius:50%}
 .term-barra .vm{background:#ff5f57}.term-barra .am{background:#febc2e}.term-barra .vd{background:#28c840}
 .term-barra span{margin-left:10px}
-.term-corpo{position:relative;padding:16px 18px 18px;font-size:13.5px;line-height:1.75}
-.boot{min-height:7em;color:#4ade80;white-space:pre-wrap}
+.term-corpo{position:relative;padding:18px 18px 18px;font-size:13.5px;line-height:2.1}
+.boot{min-height:8.4em;color:#4ade80;white-space:pre-wrap}
 .boot .u{color:#7dd3fc}
 .boot .t{color:#94a3b8}
 .campo-t{display:flex;align-items:center;gap:10px;position:relative}
@@ -217,15 +232,14 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 </head>
 <body class="bloqueado">
 
-<!-- Tela de senha: data center escuro com janela de terminal (só CSS) -->
+<!-- Tela de senha: janela de terminal sobre fundo azul-noite (só CSS) -->
 <div class="login" id="login">
-  <canvas class="cena" id="cena" aria-hidden="true"></canvas>
   <form class="term" id="formLogin" autocomplete="off" data-form-type="other" novalidate>
-    <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>root@sysboot: ~/login</span></div>
+    <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>Hub de Sistemas da COFIP / CAEXF</span></div>
     <div class="term-corpo">
       <div class="boot" id="boot" aria-hidden="true"></div>
-      <label class="campo-t"><span class="pr">user:</span><input id="lgUser" type="text" placeholder="root" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Usuário"></label>
-      <label class="campo-t"><span class="pr">password:</span><input id="lgSenha" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Senha (caracteres ocultos)"></label>
+      <label class="campo-t"><span class="pr">usuário:</span><input id="lgUser" type="text" placeholder="root" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Usuário"></label>
+      <label class="campo-t"><span class="pr">senha:</span><input id="lgSenha" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Senha (caracteres ocultos)"></label>
       <i class="cursor-t" id="cursorT" aria-hidden="true"></i><span class="medidor-t" id="medidorT" aria-hidden="true"></span>
       <div class="msg" id="lgMsg" role="status" aria-live="polite"></div>
       <div class="rodape-t"><span class="dica">[Enter] para entrar</span><button type="submit" class="entrar">entrar ›</button></div>
@@ -536,7 +550,7 @@ const SEM_ANIMACAO=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function digitarBoot(){
   const agora=new Date();
   const quando='acessando em '+agora.toLocaleDateString('pt-BR')+' às '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  const linhas=[['u','root@sysboot:~$ '],['','./portal --login\n'],['','Portal de Gestão Financeira e Projetos\n'],['','Sistemas de Gestão Pública\n'],['t',quando+' · autenticação requerida']];
+  const linhas=[['u','Coordenadoria Especial de Gestão Financeira e de Projetos - COFIP\n'],['','Célula de Acompanhamento da Execução Financeira - CAEXF\n'],['','Soluções de Gestão Financeira e Projetos\n'],['t',quando+' · autenticação requerida']];
   const alvo=$('#boot'); alvo.innerHTML='';
   if(SEM_ANIMACAO){ alvo.innerHTML=linhas.map(function(l){ return l[0]?'<span class="'+l[0]+'">'+esc(l[1])+'</span>':esc(l[1]); }).join(''); return; }
   let i=0, j=0, span=null;
@@ -548,214 +562,6 @@ function digitarBoot(){
     setTimeout(passo,18);
   })();
 }
-/* ------------------------- Cena da tela de senha ---------------------------
-   Corredor de data center em perspectiva, desenhado em canvas: racks dos dois
-   lados, luminárias no teto, piso com reflexo, névoa azul ao fundo e LEDs que
-   piscam. O cenário fixo é pintado uma vez num canvas de apoio; a cada quadro
-   só os LEDs são redesenhados. */
-const CENA={ ctx:null, fundo:null, leds:[], sprites:{}, raf:0, ultimo:0, w:0, h:0, dpr:1 };
-function aleatorio(semente){ return function(){ semente|=0; semente=semente+0x6D2B79F5|0; let x=Math.imul(semente^semente>>>15,1|semente);
-  x=x+Math.imul(x^x>>>7,61|x)^x; return ((x^x>>>14)>>>0)/4294967296; }; }
-const NUCLEO={ 'rgba(226,236,255,1)':'#ffffff', 'rgba(74,222,128,1)':'#d4ffe0', 'rgba(251,146,60,1)':'#ffe2c7' };
-function spriteLed(cor){
-  if(CENA.sprites[cor]) return CENA.sprites[cor];
-  const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d');
-  const r=g.createRadialGradient(32,32,0,32,32,32);   // só o halo; o núcleo é desenhado à parte, nítido
-  r.addColorStop(0,cor.replace(/[\d.]+\)$/,'.9)')); r.addColorStop(.18,cor.replace(/[\d.]+\)$/,'.45)')); r.addColorStop(.5,cor.replace(/[\d.]+\)$/,'.1)')); r.addColorStop(1,'rgba(0,0,0,0)');
-  g.fillStyle=r; g.fillRect(0,0,64,64); return (CENA.sprites[cor]=c);
-}
-function montarCena(){
-  const cv=$('#cena'); if(!cv) return;
-  const dpr=Math.min(3,window.devicePixelRatio||1), W=cv.clientWidth, H=cv.clientHeight;
-  CENA.w=W; CENA.h=H; CENA.dpr=dpr;
-  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
-  CENA.ctx=cv.getContext('2d'); CENA.ctx.imageSmoothingQuality='high';
-  /* o cenário fixo é pintado em resolução acima da tela: com a aproximação da câmera ele continua nítido */
-  const SS=Math.min(4,dpr*1.5);
-  const f=document.createElement('canvas'); f.width=Math.round(W*SS); f.height=Math.round(H*SS);
-  const g=f.getContext('2d'); g.scale(SS,SS); CENA.fundo=f;
-  /* escala horizontal e vertical separadas: em tela em pé o corredor estreita sem perder os racks */
-  const FY=H*0.78, FX=Math.min(FY,W*0.62), F=FX, cx=W/2, cy=H*0.46, XR=1.25, PISO=-1, TETO=1.3, ZMAX=17;
-  const P=function(x,y,z){ return [cx+x/z*FX, cy-y/z*FY]; };
-  const quad=function(a,b,c,d){ g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.lineTo(c[0],c[1]); g.lineTo(d[0],d[1]); g.closePath(); };
-  const nevoa=function(z){ return Math.min(1,Math.max(0,(z-1)/(ZMAX-1))); };
-  const rnd=aleatorio(20260923);
-  Object.assign(CENA,{ P:P, cx:cx, cy:cy, FX:FX, FY:FY, ZMAX:ZMAX, PISO:PISO, TETO:TETO, XR:XR });
-  // partículas de poeira suspensas na luz, vindo devagar do fundo
-  CENA.poeira=[]; for(let i=0;i<90;i++) CENA.poeira.push({ x:(rnd()*2-1)*1.1, y:PISO+rnd()*(TETO-PISO), z:1+rnd()*(ZMAX-2), v:.12+rnd()*.25, f:rnd()*6.3 });
-
-  // céu escuro e fundo do corredor aceso
-  let bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#01040c'); bg.addColorStop(.5,'#04112b'); bg.addColorStop(1,'#01040c');
-  g.fillStyle=bg; g.fillRect(0,0,W,H);
-  const fd=[P(-XR,TETO,ZMAX),P(XR,TETO,ZMAX),P(XR,PISO,ZMAX),P(-XR,PISO,ZMAX)];
-  let gl=g.createRadialGradient(cx,cy,0,cx,cy,FY*0.35); gl.addColorStop(0,'rgba(120,180,255,.95)'); gl.addColorStop(.5,'rgba(40,110,255,.55)'); gl.addColorStop(1,'rgba(10,40,120,0)');
-  g.fillStyle=gl; g.fillRect(0,0,W,H);
-  quad(fd[0],fd[1],fd[2],fd[3]); g.fillStyle='rgba(150,200,255,.55)'; g.fill();
-
-  // teto e piso
-  quad(P(-XR,TETO,.6),P(XR,TETO,.6),P(XR,TETO,ZMAX),P(-XR,TETO,ZMAX)); g.fillStyle='#030a1a'; g.fill();
-  const pp=[P(-XR,PISO,.6),P(XR,PISO,.6),P(XR,PISO,ZMAX),P(-XR,PISO,ZMAX)];
-  let gp=g.createLinearGradient(0,pp[0][1],0,pp[2][1]); gp.addColorStop(0,'#02060f'); gp.addColorStop(1,'#0a2658');
-  quad(pp[0],pp[1],pp[2],pp[3]); g.fillStyle=gp; g.fill();
-  g.lineWidth=1; g.strokeStyle='rgba(120,170,255,.07)';
-  for(let x=-XR;x<=XR+.01;x+=.42){ const a=P(x,PISO,.6), b=P(x,PISO,ZMAX); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); }
-  for(let z=.8;z<ZMAX;z*=1.18){ const a=P(-XR,PISO,z), b=P(XR,PISO,z); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); }
-
-  // luminárias do teto e o reflexo delas no piso
-  [-.46,.46].forEach(function(x){
-    for(let z=1.6;z<ZMAX-.5;z+=1.05){
-      const q=[P(x-.035,TETO,z),P(x+.035,TETO,z),P(x+.035,TETO,z+.62),P(x-.035,TETO,z+.62)], n=nevoa(z);
-      const m=P(x,TETO,z+.31); let hl=g.createRadialGradient(m[0],m[1],0,m[0],m[1],.9/z*F);
-      hl.addColorStop(0,'rgba(120,170,255,'+(0.22-n*0.14)+')'); hl.addColorStop(1,'rgba(120,170,255,0)');
-      g.fillStyle=hl; g.fillRect(m[0]-FY,m[1]-FY,2*FY,2*FY);
-      g.save(); g.shadowColor='rgba(170,210,255,.95)'; g.shadowBlur=16*(1-n)+4;
-      quad(q[0],q[1],q[2],q[3]); g.fillStyle='rgba(225,238,255,'+(0.8-n*0.5)+')'; g.fill(); g.restore();
-      const r=[P(x-.1,2*PISO-TETO,z),P(x+.1,2*PISO-TETO,z),P(x+.1,2*PISO-TETO,z+.8),P(x-.1,2*PISO-TETO,z+.8)];
-      g.save(); g.filter='blur(6px)'; quad(r[0],r[1],r[2],r[3]); g.fillStyle='rgba(170,205,255,'+(0.14-n*0.08)+')'; g.fill(); g.restore();
-    }
-  });
-
-  // racks: faces voltadas para o corredor, de longe para perto
-  CENA.leds=[];
-  // LEDs de servidor: branco (energia), verde (ok/atividade) e laranja (alerta), este mais raro
-  const cores=['rgba(226,236,255,1)','rgba(226,236,255,1)','rgba(74,222,128,1)','rgba(74,222,128,1)','rgba(74,222,128,1)','rgba(251,146,60,1)'];
-  [-1,1].forEach(function(s){
-    const racks=[];
-    for(let z0=.75;z0<ZMAX-.3;z0+=.64) racks.push(z0);
-    racks.reverse().forEach(function(z0){
-      const z1=z0+.6, x=s*XR, n=nevoa(z0);
-      const a=P(x,1.12,z0), b=P(x,1.12,z1), c=P(x,PISO,z1), d=P(x,PISO,z0);
-      let gr=g.createLinearGradient(0,a[1],0,d[1]);
-      gr.addColorStop(0,'rgba('+Math.round(8+30*n)+','+Math.round(16+50*n)+','+Math.round(34+90*n)+',1)');
-      gr.addColorStop(1,'rgba('+Math.round(4+20*n)+','+Math.round(9+36*n)+','+Math.round(22+70*n)+',1)');
-      quad(a,b,c,d); g.fillStyle=gr; g.fill();
-      g.strokeStyle='rgba(140,180,255,'+(0.22-n*0.12)+')'; g.lineWidth=Math.max(.5,1.4*(1-n)); g.stroke();
-      // unidades do rack (ranhuras horizontais) e grade da porta
-      g.lineWidth=.7;
-      for(let y=PISO+.08;y<1.08;y+=.085){
-        if(rnd()<.12) continue;   // espaço vazio no rack
-        const alto=.085*(rnd()<.2?2:1)-.012;
-        const s1=P(x,y+alto,z0+.04), s2=P(x,y+alto,z1-.04), s3=P(x,y,z1-.04), s4=P(x,y,z0+.04);
-        quad(s1,s2,s3,s4); g.fillStyle='rgba('+Math.round(14+34*n)+','+Math.round(24+56*n)+','+Math.round(46+96*n)+','+(0.9)+')'; g.fill();
-        g.strokeStyle='rgba(150,190,255,'+(0.16-n*0.1)+')'; g.beginPath(); g.moveTo(s1[0],s1[1]); g.lineTo(s2[0],s2[1]); g.stroke();
-        if(rnd()<.5){
-          // baias de disco: gavetas com borda clara
-          for(let zz=z0+.3;zz<z1-.07;zz+=.034){
-            const b1=P(x,y+alto*.85,zz), b2=P(x,y+alto*.85,zz+.028), b3=P(x,y+alto*.15,zz+.028), b4=P(x,y+alto*.15,zz);
-            quad(b1,b2,b3,b4); g.fillStyle='rgba(2,6,16,'+(0.55-n*0.3)+')'; g.fill();
-            g.strokeStyle='rgba(160,195,255,'+(0.2-n*0.13)+')'; g.lineWidth=.6; g.stroke();
-          }
-        } else {
-          // grade de ventilação
-          g.strokeStyle='rgba(0,0,0,'+(0.45-n*0.25)+')';
-          for(let zz=z0+.32;zz<z1-.06;zz+=.028){ const a1=P(x,y+alto*.8,zz), a2=P(x,y+alto*.2,zz); g.beginPath(); g.moveTo(a1[0],a1[1]); g.lineTo(a2[0],a2[1]); g.stroke(); }
-        }
-        if(alto>.1) y+=.085;
-      }
-      // puxador aceso na borda da porta
-      const h1=P(x,.75,z0+.05), h2=P(x,-.25,z0+.05);
-      g.save(); g.shadowColor='rgba(80,160,255,1)'; g.shadowBlur=10*(1-n)+2; g.strokeStyle='rgba(120,190,255,'+(0.75-n*0.4)+')';
-      g.lineWidth=Math.max(1,2.4*(1-n)); g.beginPath(); g.moveTo(h1[0],h1[1]); g.lineTo(h2[0],h2[1]); g.stroke(); g.restore();
-      // LEDs: posições fixas, piscam no quadro
-      for(let y=PISO+.12;y<1.08;y+=.085){
-        if(rnd()<.25) continue;
-        const nL=2+Math.floor(rnd()*5), zi=z0+.07+rnd()*.12, cor=cores[Math.floor(rnd()*cores.length)];
-        for(let i=0;i<nL;i++){
-          const z=zi+i*.022, pt=P(x,y,z), tam=Math.min(3.2,Math.max(.9,.009/z*F));
-          const sorte=rnd(); CENA.leds.push({ x:pt[0], y:pt[1], t:tam, cor:(i===0&&rnd()<.3)?'rgba(226,236,255,1)':cor, a:(1-n*0.7), fase:rnd()*6.3, vel:.4+rnd()*1.2, tipo: sorte<.42?'fixo':(sorte<.85?'ativ':'lento'), id:CENA.leds.length });
-          if(y<-.3 && rnd()<.35){ const rf=P(x,2*PISO-y,z); CENA.leds.push({ x:rf[0], y:rf[1], t:tam*1.4, cor:cor, a:(1-n)*.09, fase:rnd()*6.3, vel:1, tipo:'fixo', id:CENA.leds.length, reflexo:true }); }
-        }
-      }
-    });
-  });
-
-  // LEDs que não piscam (status e reflexos) vão direto para o cenário fixo
-  g.globalCompositeOperation='lighter';
-  CENA.leds=CENA.leds.filter(function(l){
-    if(l.tipo!=='fixo') return true;
-    const d=l.t*3.6; g.globalAlpha=l.a*.8; g.drawImage(spriteLed(l.cor),l.x-d/2,l.y-d/2,d,d);
-    if(!l.reflexo){ const s=Math.max(.8,l.t*.62); g.globalAlpha=l.a; g.fillStyle=NUCLEO[l.cor]||'#e0f2fe'; g.fillRect(l.x-s/2,l.y-s*.4,s,s*.8); }
-    return false;
-  });
-  g.globalCompositeOperation='source-over'; g.globalAlpha=1;
-  // névoa e vinheta
-  let nv=g.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.55); nv.addColorStop(0,'rgba(70,140,255,.12)'); nv.addColorStop(1,'rgba(70,140,255,0)');
-  g.fillStyle=nv; g.fillRect(0,0,W,H);
-  let vg=g.createRadialGradient(cx,cy,Math.min(W,H)*.25,cx,cy,Math.max(W,H)*.75); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.72)');
-  g.fillStyle=vg; g.fillRect(0,0,W,H);
-}
-function quadroCena(ts){
-  CENA.raf=requestAnimationFrame(quadroCena);
-  if(ts-CENA.ultimo<40) return;   // ~25 quadros por segundo
-  CENA.ultimo=ts; desenharCena(ts/1000);
-}
-/* ruído determinístico: mesma entrada, mesmo valor entre 0 e 1 */
-function ruido(n){ const s=Math.sin(n*12.9898)*43758.5453; return s-Math.floor(s); }
-function desenharCena(tempo){
-  const c=CENA.ctx; if(!c||!CENA.fundo) return;
-  const W=CENA.w, H=CENA.h, dpr=CENA.dpr;
-  // câmera: aproximação lenta pelo corredor, vai e volta a cada 28 s
-  const zoom=1.012+.012*Math.sin(tempo*2*Math.PI/28), ox=CENA.cx*(1-zoom), oy=CENA.cy*(1-zoom);
-  c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.fillStyle='#01040c'; c.fillRect(0,0,c.canvas.width,c.canvas.height);
-  c.setTransform(dpr*zoom,0,0,dpr*zoom,dpr*ox,dpr*oy);
-  c.drawImage(CENA.fundo,0,0,W,H);
-  // respiração da luz no fim do corredor
-  const res=.5+.5*Math.sin(tempo*.9);
-  let gl=c.createRadialGradient(CENA.cx,CENA.cy,0,CENA.cx,CENA.cy,CENA.FY*.5);
-  gl.addColorStop(0,'rgba(110,170,255,'+(.10+.08*res)+')'); gl.addColorStop(1,'rgba(110,170,255,0)');
-  c.globalCompositeOperation='lighter'; c.fillStyle=gl; c.fillRect(0,0,W,H);
-  // LEDs: status acesos, atividade de disco/rede em rajadas, alguns respirando
-  const lotes={};
-  CENA.leds.forEach(function(l){
-    let a=l.a;
-    if(l.tipo==='ativ'){
-      const rajada=ruido(Math.floor(tempo*.7+l.fase)+l.id*.37)>.45;              // períodos de atividade
-      a*= rajada ? (ruido(Math.floor(tempo*14)+l.id*1.7)>.35 ? 1 : .12) : .9;   // pisca rápido na rajada
-    } else if(l.tipo==='lento'){ a*=.35+.65*(.5+.5*Math.sin(tempo*l.vel*2+l.fase)); }
-    a=Math.max(0,Math.min(1,a)); if(a<.04) return;
-    if(l.t>=1.3){ const d=l.t*3.6; c.globalAlpha=a*.8; c.drawImage(spriteLed(l.cor),l.x-d/2,l.y-d/2,d,d); }
-    // núcleo nítido: agrupado por cor e intensidade para desenhar de uma vez
-    const k=l.cor+'|'+Math.round(a*4), s=Math.max(.8,l.t*.62);
-    (lotes[k]||(lotes[k]=[])).push(l.x-s/2,l.y-s*.4,s,s*.8);
-  });
-  Object.keys(lotes).forEach(function(k){
-    const r=lotes[k], sep=k.lastIndexOf('|');
-    c.globalAlpha=(+k.slice(sep+1))/4; c.fillStyle=NUCLEO[k.slice(0,sep)]||'#e0f2fe'; c.beginPath();
-    for(let i=0;i<r.length;i+=4) c.rect(r[i],r[i+1],r[i+2],r[i+3]);
-    c.fill();
-  });
-  // poeira em suspensão atravessando a luz
-  const P=CENA.P;
-  CENA.poeira.forEach(function(q){
-    q.z-=q.v/30; if(q.z<.9){ q.z=CENA.ZMAX-1; q.x=(Math.random()*2-1)*1.1; }
-    const y=q.y+Math.sin(tempo*.4+q.f)*.05, pt=P(q.x,y,q.z), n=Math.min(1,(q.z-1)/(CENA.ZMAX-1));
-    const tam=Math.max(.6,.018/q.z*CENA.FX);
-    c.globalAlpha=(1-n)*.35*(.6+.4*Math.sin(tempo*1.3+q.f));
-    c.drawImage(spriteLed('rgba(170,205,255,1)'),pt[0]-tam*2,pt[1]-tam*2,tam*4,tam*4);
-  });
-  // feixe de varredura que percorre o piso de vez em quando
-  const ciclo=(tempo%11)/11;
-  if(ciclo<.45){
-    const z=CENA.ZMAX-1-(ciclo/.45)*(CENA.ZMAX-1.8), pt=P(0,CENA.PISO,z), n=Math.min(1,(z-1)/(CENA.ZMAX-1));
-    const r=1.6/z*CENA.FX, fx=Math.sin(ciclo/.45*Math.PI);
-    let sw=c.createRadialGradient(pt[0],pt[1],0,pt[0],pt[1],r);
-    sw.addColorStop(0,'rgba(90,160,255,'+(.16*fx*(1-n*.5))+')'); sw.addColorStop(1,'rgba(90,160,255,0)');
-    c.globalAlpha=1; c.fillStyle=sw; c.save(); c.translate(pt[0],pt[1]); c.scale(1,.28); c.translate(-pt[0],-pt[1]);
-    c.fillRect(pt[0]-r,pt[1]-r,2*r,2*r); c.restore();
-  }
-  c.globalCompositeOperation='source-over'; c.globalAlpha=1;
-}
-function iniciarCena(){
-  montarCena();
-  if(SEM_ANIMACAO){ desenharCena(0); return; }
-  cancelAnimationFrame(CENA.raf); CENA.ultimo=0; CENA.raf=requestAnimationFrame(quadroCena);
-}
-function pararCena(){ cancelAnimationFrame(CENA.raf); CENA.raf=0; }
-window.addEventListener('resize',function(){
-  if($('#login').classList.contains('oculto')) return;
-  clearTimeout(CENA._r); CENA._r=setTimeout(function(){ montarCena(); if(SEM_ANIMACAO) desenharCena(0); },150);
-});
-
 function mostrarLogin(){
   document.body.classList.add('bloqueado');
   $('#login').classList.remove('oculto','saindo');
@@ -763,7 +569,6 @@ function mostrarLogin(){
   digitarBoot();
   $('#formLogin').classList.add('aguardando');
   setTimeout(function(){ const u=$('#lgUser'); u.focus(); posicionarCursor(); },60);
-  iniciarCena();
 }
 /* Posiciona o bloco verde logo após o texto antes do cursor, no campo em foco. */
 function posicionarCursor(){
@@ -842,7 +647,7 @@ $('#formLogin').addEventListener('submit',async function(ev){
   msg.className='msg ok'; msg.textContent='acesso concedido';
   estadoTerm('sucesso');
   setTimeout(function(){
-    $('#login').classList.add('saindo'); pararCena();
+    $('#login').classList.add('saindo');
     document.body.classList.remove('bloqueado');
     iniciar();
     setTimeout(function(){ $('#login').classList.add('oculto'); }, SEM_ANIMACAO?0:500);
