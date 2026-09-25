@@ -220,6 +220,71 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 .entrar:hover{filter:brightness(1.08)}
 @media(max-width:520px){.campo-t{flex-wrap:wrap;gap:0 10px}.campo-t .pr{min-width:0}.term-corpo{font-size:12.5px}}
 
+/* ------------------------------ Tema claro (padrão) -------------------------
+   Mesmo layout, efeitos e tempos do tema escuro. Dois tons: fundo cinza-azulado
+   (--fundo/--fundo-2) e box branco (--carta). As cores vêm dos tokens do tema
+   claro do portal; quando o token não chega a 4,5:1 sobre o branco, usa-se um
+   tom mais fechado da mesma cor: --foco→#4f46e5, --ok→#15803d, --tinta-3→--tinta-2.
+   O pulso é decorativo e usa os tokens puros: --erro, --alerta, --ok e --foco. */
+/* Fundo em meio-tom ardósia-lavanda (bem mais escuro que o box), com as bolhas
+   do cabeçalho do portal (verde-água, violeta, laranja) à deriva, desfocadas, e
+   uma malha de pontos de papel quadriculado que some perto das bordas. O box é
+   branco puro, com sombra em camadas e a faixa em degradê da barra do portal. */
+html:not([data-tema="escuro"]) .login{color-scheme:light;
+  background:radial-gradient(ellipse 90% 80% at 50% 50%,transparent 55%,rgba(30,41,90,.14) 100%),
+    linear-gradient(160deg,#c3cce3 0%,#d3d9eb 48%,#c6cfe6 100%)}
+html:not([data-tema="escuro"]) .login::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(30,41,90,.22) 1px,transparent 1.4px);background-size:22px 22px;
+  -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 35%,transparent 90%);mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 35%,transparent 90%)}
+.aurora{display:none}
+html:not([data-tema="escuro"]) .aurora{display:block;position:absolute;inset:0;pointer-events:none;filter:blur(70px);opacity:.42}
+.aurora i{position:absolute;border-radius:50%;animation:derivar 26s ease-in-out infinite alternate}
+.aurora i:nth-child(1){width:46vmax;height:46vmax;left:-12vmax;top:-10vmax;background:#14b8a6}
+.aurora i:nth-child(2){width:40vmax;height:40vmax;right:-10vmax;top:-14vmax;background:#8b5cf6;animation-duration:32s;animation-delay:-8s}
+.aurora i:nth-child(3){width:42vmax;height:42vmax;right:-6vmax;bottom:-20vmax;background:#f97316;animation-duration:29s;animation-delay:-16s;opacity:.8}
+.aurora i:nth-child(4){width:34vmax;height:34vmax;left:-8vmax;bottom:-18vmax;background:#6366f1;animation-duration:35s;animation-delay:-4s}
+@keyframes derivar{0%{transform:translate(0,0) scale(1)}50%{transform:translate(6vmax,4vmax) scale(1.08)}100%{transform:translate(-3vmax,7vmax) scale(.95)}}
+html:not([data-tema="escuro"]) .term{background:#fff;border-color:rgba(20,26,46,.10);color:var(--tinta-2);
+  box-shadow:0 0 0 1px rgba(255,255,255,.7) inset,0 1px 2px rgba(20,26,46,.10),0 10px 24px -10px rgba(30,41,90,.30),0 44px 90px -24px rgba(30,41,90,.55);
+  backdrop-filter:none;-webkit-backdrop-filter:none}
+html:not([data-tema="escuro"]) .term-barra{border-bottom-color:var(--linha);color:var(--tinta-2);border-radius:12px 12px 0 0;
+  background:linear-gradient(90deg,#14b8a6,#22c55e,#eab308,#f97316,#ec4899,#8b5cf6,#6366f1) top/100% 3px no-repeat,var(--carta-2)}
+html:not([data-tema="escuro"]) .boot{color:#15803d}
+html:not([data-tema="escuro"]) .boot .u{color:#4f46e5}
+html:not([data-tema="escuro"]) .boot .t{color:var(--tinta-2)}
+html:not([data-tema="escuro"]) .campo-t .pr{color:#15803d}
+html:not([data-tema="escuro"]) .campo-t input{color:var(--tinta);border-bottom-color:var(--linha-forte)}
+html:not([data-tema="escuro"]) .campo-t input::placeholder{color:var(--tinta-3)}
+html:not([data-tema="escuro"]) .campo-t input:focus{border-bottom-color:var(--ok)}
+html:not([data-tema="escuro"]) .campo-t input:-webkit-autofill,html:not([data-tema="escuro"]) .campo-t input:autofill{-webkit-text-fill-color:var(--tinta)}
+html:not([data-tema="escuro"]) .cursor-t{background:var(--ok)}
+html:not([data-tema="escuro"]) .msg.erro{color:var(--erro)}
+html:not([data-tema="escuro"]) .msg.ok{color:#15803d}
+html:not([data-tema="escuro"]) .dica{color:var(--tinta-2)}
+html:not([data-tema="escuro"]) .entrar{color:#fff;background:#15803d}
+html:not([data-tema="escuro"]) .term.erro{border-color:var(--erro)}
+html:not([data-tema="escuro"]) .term.sucesso{border-color:var(--ok)}
+html:not([data-tema="escuro"]) .term::after{animation-name:aguardar-claro}
+@keyframes aguardar-claro{
+  0%{border-color:rgba(220,38,38,.30);box-shadow:0 0 40px -12px rgba(220,38,38,.25)}
+  12.5%{border-color:rgba(220,38,38,.70);box-shadow:0 0 70px -6px rgba(220,38,38,.45)}
+  24.9%{border-color:rgba(220,38,38,.30);box-shadow:0 0 40px -12px rgba(220,38,38,.25)}
+  25%{border-color:rgba(217,119,6,.30);box-shadow:0 0 40px -12px rgba(217,119,6,.25)}
+  37.5%{border-color:rgba(217,119,6,.75);box-shadow:0 0 70px -6px rgba(217,119,6,.45)}
+  49.9%{border-color:rgba(217,119,6,.30);box-shadow:0 0 40px -12px rgba(217,119,6,.25)}
+  50%{border-color:rgba(22,163,74,.30);box-shadow:0 0 40px -12px rgba(22,163,74,.25)}
+  62.5%{border-color:rgba(22,163,74,.75);box-shadow:0 0 70px -6px rgba(22,163,74,.45)}
+  74.9%{border-color:rgba(22,163,74,.30);box-shadow:0 0 40px -12px rgba(22,163,74,.25)}
+  75%{border-color:rgba(99,102,241,.30);box-shadow:0 0 40px -12px rgba(99,102,241,.25)}
+  87.5%{border-color:rgba(99,102,241,.70);box-shadow:0 0 70px -6px rgba(99,102,241,.45)}
+  100%{border-color:rgba(99,102,241,.30);box-shadow:0 0 40px -12px rgba(99,102,241,.25)}}
+/* botão de tema na tela de senha */
+.tema-login{position:absolute;top:14px;right:14px;z-index:2;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(125,170,255,.28);background:rgba(10,20,44,.55);color:#cbd5e1;transition:background .15s,color .15s}
+.tema-login:hover{background:rgba(10,20,44,.8);color:#fff}
+html:not([data-tema="escuro"]) .tema-login{border-color:var(--linha);background:var(--carta);color:var(--tinta-2);box-shadow:var(--sombra)}
+html:not([data-tema="escuro"]) .tema-login:hover{color:var(--tinta)}
+
 @media(max-width:720px){
   .marca .nome,.btn-topo .txt,.btn-topo kbd,.sep{display:none}
   .topo{padding:0 8px;gap:6px}
@@ -234,6 +299,8 @@ body.bloqueado .topo,body.bloqueado .palco{visibility:hidden}
 
 <!-- Tela de senha: janela de terminal sobre fundo azul-noite (só CSS) -->
 <div class="login" id="login">
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <button type="button" class="tema-login" id="btnTemaLogin" title="Alternar tema claro e escuro" aria-label="Alternar tema"><svg id="icoTemaLogin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg></button>
   <form class="term" id="formLogin" autocomplete="off" data-form-type="other" novalidate>
     <div class="term-barra"><i class="d vm"></i><i class="d am"></i><i class="d vd"></i><span>Hub de Sistemas da COFIP / CAEXF</span></div>
     <div class="term-corpo">
@@ -360,10 +427,16 @@ function gravarPref(){ try{ localStorage.setItem(CHAVE,JSON.stringify({ tema:doc
 /* ----------------------------------- Tema ---------------------------------- */
 function aplicarTema(t){
   document.documentElement.dataset.tema=t;
-  $('#icoTema').innerHTML = t==='escuro' ? SOL : LUA;
+  $('#icoTema').innerHTML = $('#icoTemaLogin').innerHTML = t==='escuro' ? SOL : LUA;
 }
 $('#btnTema').addEventListener('click',function(){
   aplicarTema(document.documentElement.dataset.tema==='escuro'?'claro':'escuro'); gravarPref();
+});
+/* na tela de senha as abas ainda não foram lidas: grava só o tema, sem apagar as abas guardadas */
+$('#btnTemaLogin').addEventListener('click',function(){
+  aplicarTema(document.documentElement.dataset.tema==='escuro'?'claro':'escuro');
+  const p=lerPref(); p.tema=document.documentElement.dataset.tema; try{ localStorage.setItem(CHAVE,JSON.stringify(p)); }catch(e){}
+  const u=$('#lgUser'), s=$('#lgSenha'); (document.activeElement===s?s:u).focus();
 });
 
 /* --------------------------------- Vitrine --------------------------------- */
@@ -669,7 +742,7 @@ let iniciado=false;
 function iniciar(){
   if(iniciado) return; iniciado=true;
   const pref=lerPref();
-  aplicarTema(pref.tema || (matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro'));
+  aplicarTema(pref.tema || 'claro');
   montarVitrine();
   // reabre as abas da última visita (o sistema só carrega quando a aba for ativada)
   E.abertas=(pref.abertas||[]).filter(function(id){ return DESTINOS[id]; });
@@ -679,7 +752,7 @@ function iniciar(){
 }
 /* A busca volta quando houver sistemas bastantes: basta BUSCA_VISIVEL=true. */
 document.querySelectorAll('[data-busca]').forEach(function(el){ el.classList.toggle('oculto',!BUSCA_VISIVEL); });
-aplicarTema(lerPref().tema || (matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro'));
+aplicarTema(lerPref().tema || 'claro');   /* claro é o padrão; a escolha fica em localStorage */
 if(liberado()){ document.body.classList.remove('bloqueado'); $('#login').classList.add('oculto'); iniciar(); }
 else mostrarLogin();
 </script>
