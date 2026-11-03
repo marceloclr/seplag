@@ -12,7 +12,8 @@ Portal particular para pequenos projetos de trabalho da Sistemas de Gestão Púb
 - Barra do alto: abas abertas, **Recarregar**, **Nova janela** (abre o sistema numa aba do navegador), **Sair** e tema claro/escuro.
 - A busca está oculta enquanto houver poucos sistemas. Para mostrá-la, ponha `BUSCA_VISIVEL = true` no `index.html`.
 - Atalhos: <kbd>Alt</kbd>+<kbd>0</kbd> volta ao início; <kbd>Alt</kbd>+<kbd>1</kbd>…<kbd>9</kbd> vai para as abas; o botão do meio do mouse fecha uma aba.
-- Link direto para um sistema: `…/seplag/#/saneamento`, `…/seplag/#/sipog`.
+- Link direto para um sistema: `…/seplag/#/saneamento`, `…/seplag/#/sipog`, `…/seplag/#/emendas`.
+- Versão: `V-DDMMAAAA-HHMM` no `<title>` e no canto inferior esquerdo (o direito fica com a versão do sistema aberto); a versão anterior fica como `index-DDMMAAAA-HHMM.html`.
 - O tema claro é o padrão. O tema escolhido e as abas abertas ficam guardados só neste navegador (`localStorage`, chave `gfp.portal`).
 
 ## Sistemas cadastrados
@@ -21,6 +22,7 @@ Portal particular para pequenos projetos de trabalho da Sistemas de Gestão Púb
 |---|---|
 | Saneamento de MAPPs (+ versão essencial e manual) | https://marceloclr.github.io/saneamento/ |
 | SIPOG — Projeção Orçamentária e Gestão Financeira | https://marceloclr.github.io/sipog/ |
+| Monitoramento das Emendas Federais (+ manuais) | https://marceloclr.gitlab.io/seplag-emendas/ |
 
 ## Incluir um sistema
 

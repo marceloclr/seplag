@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Portal de Gestão Financeira e Projetos</title>
+<meta name="versao" content="V-03112026-1811">
+<title>Portal de Gestão Financeira e Projetos · V-03112026-1811</title>
 <meta name="description" content="Portal de Gestão Financeira e Projetos: Sistemas de Gestão Pública em abas, sem decorar endereços.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,6 +119,7 @@ html[data-tema="escuro"] .heroi .bolhas{opacity:.28}
 .cartao .desc{margin:0;color:var(--tinta-2);font-size:14px;line-height:1.55}
 .etiquetas{display:flex;flex-wrap:wrap;gap:6px}
 .etiquetas span{font-size:11.5px;font-weight:600;color:var(--tinta-2);background:var(--fundo-2);border-radius:999px;padding:3px 10px}
+.versao-canto{position:fixed;left:10px;bottom:8px;z-index:30;font:400 11px ui-monospace,monospace;color:var(--tinta-3);background:var(--carta);border:1px solid var(--linha);border-radius:99px;padding:3px 9px;opacity:.85;pointer-events:none}
 .estado{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tinta-3);font-weight:500}
 .estado .luz{width:8px;height:8px;border-radius:50%;background:var(--linha-forte)}
 .estado.ok .luz{background:var(--ok);box-shadow:0 0 0 4px rgba(22,163,74,.15)}
@@ -380,7 +382,8 @@ html:not([data-tema="escuro"]) .tema-login:hover{color:var(--tinta)}
    Para incluir um sistema, acrescente um objeto a SISTEMAS. `extras` são
    entradas secundárias que também abrem em aba própria dentro do portal.
    ========================================================================== */
-const BUSCA_VISIVEL = false;   /* com poucos sistemas a busca fica oculta */
+const BUSCA_VISIVEL = false;
+const VERSAO = document.querySelector('meta[name="versao"]').content;  /* V-DDMMAAAA-HHMM, também no canto da tela */   /* com poucos sistemas a busca fica oculta */
 
 const SISTEMAS = [
   { id:'saneamento', nome:'Saneamento de MAPPs', sigla:'Webmapp',
@@ -396,11 +399,20 @@ const SISTEMAS = [
     url:'https://marceloclr.github.io/sipog/',
     descricao:'Sistema de Projeção Orçamentária e Gestão Financeira: projeções, acompanhamento e gestão financeira do orçamento de investimentos.',
     etiquetas:['Projeção orçamentária','Gestão financeira'],
-    cores:['#4f46e5','#c026d3'], icone:'sipog' }
+    cores:['#4f46e5','#c026d3'], icone:'sipog' },
+  { id:'emendas', nome:'Monitoramento das Emendas Federais', sigla:'Emendas ao Ceará',
+    url:'https://marceloclr.gitlab.io/seplag-emendas/',
+    descricao:'Emendas parlamentares federais (RP6 a RP9) ao Governo do Estado e às prefeituras do Ceará: relatórios oficiais aprovados e o relatório interativo do mês, com revisão e geração do PDF.',
+    etiquetas:['Relatórios oficiais','Relatório interativo','PDF'],
+    cores:['#465564','#26a737'], icone:'emendas',  /* cores do Governo do Ceará (marca e verde do manual) */
+    extras:[
+      { id:'emendas-manual', nome:'Emendas · Manuais', rotulo:'Manuais', url:'https://marceloclr.gitlab.io/seplag-emendas/manuais.html' }
+    ] }
 ];
 
 const ICONES = {
   saneamento:'<svg width="112" height="112" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="8" width="36" height="46" rx="6" fill="rgba(255,255,255,.14)"/><path d="M18 20h20M18 29h20M18 38h11"/><circle cx="44" cy="44" r="11" fill="rgba(255,255,255,.22)"/><path d="m39 44 4 4 7-8"/></svg>',
+  emendas:'<svg width="112" height="112" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8h26l10 10v38H14z" fill="rgba(255,255,255,.14)"/><path d="M40 8v10h10"/><path d="M22 44V36M30 44V28M38 44V32"/><circle cx="46" cy="48" r="9" fill="rgba(255,255,255,.22)"/><path d="m42 48 3 3 5-6"/></svg>',
   sipog:'<svg width="112" height="112" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="10" width="48" height="42" rx="6" fill="rgba(255,255,255,.14)"/><path d="M16 42V32M26 42V24M36 42V28M46 42V18"/><path d="m15 24 11-8 10 5 12-9"/></svg>'
 };
 const SOL='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
@@ -547,8 +559,8 @@ function ativar(id,semHistorico){
   E.ativa=id;
   $('#inicio').classList.toggle('oculto',id!=='inicio');
   Object.keys(E.paineis).forEach(function(k){ E.paineis[k].classList.toggle('oculto',k!==id); });
-  if(id!=='inicio'){ painel(id).classList.remove('oculto'); document.title=DESTINOS[id].nome+' · Portal GFP'; }
-  else document.title='Portal de Gestão Financeira e Projetos';
+  if(id!=='inicio'){ painel(id).classList.remove('oculto'); document.title=DESTINOS[id].nome+' · Portal GFP · '+VERSAO; }
+  else document.title='Portal de Gestão Financeira e Projetos · '+VERSAO;
   const h= id==='inicio' ? '#/' : '#/'+id;
   if(!semHistorico && location.hash!==h) history.pushState(null,'',h);
   desenharAbas(); gravarPref();
@@ -756,5 +768,6 @@ aplicarTema(lerPref().tema || 'claro');   /* claro é o padrão; a escolha fica 
 if(liberado()){ document.body.classList.remove('bloqueado'); $('#login').classList.add('oculto'); iniciar(); }
 else mostrarLogin();
 </script>
+<div class="versao-canto" title="Versão da página">V-03112026-1811</div>
 </body>
 </html>
