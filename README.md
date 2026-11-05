@@ -1,8 +1,8 @@
 # Portal de Gestão Financeira e Projetos
 
-Portal particular para pequenos projetos de trabalho da Sistemas de Gestão Pública. Reúne os sistemas publicados no GitHub Pages, sem precisar decorar os endereços.
+Portal particular para pequenos projetos de trabalho da Sistemas de Gestão Pública. Reúne os sistemas publicados no GitLab Pages, sem precisar decorar os endereços.
 
-**Endereço:** https://marceloclr.github.io/seplag/
+**Endereço:** https://marceloclr.gitlab.io/seplag/ (espelho em https://marceloclr.github.io/seplag/)
 
 ## Como funciona
 
@@ -20,11 +20,11 @@ Portal particular para pequenos projetos de trabalho da Sistemas de Gestão Púb
 
 | Sistema | Endereço |
 |---|---|
-| Saneamento de MAPPs (+ versão essencial e manual) | https://marceloclr.github.io/saneamento/ |
-| SIPOG — Projeção Orçamentária e Gestão Financeira | https://marceloclr.github.io/sipog/ |
+| Saneamento de MAPPs (+ versão essencial e manual) | https://marceloclr.gitlab.io/saneamento/ |
+| SIPOG — Projeção Orçamentária e Gestão Financeira | https://marceloclr.gitlab.io/sipog/ |
 | Monitoramento das Emendas Federais (+ manuais) | https://marceloclr.gitlab.io/seplag-emendas/ |
 | Monitoramento das Entregas MAPP (+ manuais) | https://marceloclr.gitlab.io/seplag-entregas-mapp/ |
 
 ## Incluir um sistema
 
-No `index.html`, acrescente um objeto à constante `SISTEMAS`: `id`, `nome`, `sigla`, `url`, `descricao`, `etiquetas`, `cores` (duas cores do degradê), `icone` (chave de `ICONES`) e, se houver, `extras` (entradas secundárias que também abrem em aba). O sistema precisa aceitar ser aberto em frame. Os sites do GitHub Pages aceitam.
+No `index.html`, acrescente um objeto à constante `SISTEMAS`: `id`, `nome`, `sigla`, `url`, `descricao`, `etiquetas`, `cores` (duas cores do degradê), `icone` (chave de `ICONES`) e, se houver, `extras` (entradas secundárias que também abrem em aba). O sistema precisa aceitar ser aberto em frame. Os sites do GitLab Pages aceitam (não mandam X-Frame-Options).

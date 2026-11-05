@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="versao" content="V-03112026-1826">
-<title>Portal de Gestão Financeira e Projetos · V-03112026-1826</title>
+<meta name="versao" content="V-05112026-1640">
+<title>Portal de Gestão Financeira e Projetos · V-05112026-1640</title>
 <meta name="description" content="Portal de Gestão Financeira e Projetos: Sistemas de Gestão Pública em abas, sem decorar endereços.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -387,16 +387,16 @@ const VERSAO = document.querySelector('meta[name="versao"]').content;  /* V-DDMM
 
 const SISTEMAS = [
   { id:'saneamento', nome:'Saneamento de MAPPs', sigla:'Webmapp',
-    url:'https://marceloclr.github.io/saneamento/',
+    url:'https://marceloclr.gitlab.io/saneamento/',
     descricao:'Importa a base de execução, enquadra os MAPPs nas regras definidas, apura o saldo do programado e conduz manifestação, decisão e resultado do saneamento.',
     etiquetas:['Diagnóstico','Saldo por exercício','Manifestação','Auditoria'],
     cores:['#0f766e','#22c55e'], icone:'saneamento',
     extras:[
-      { id:'saneamento-essencial', nome:'Saneamento · Essencial', rotulo:'Essencial', url:'https://marceloclr.github.io/saneamento/simplificado/' },
-      { id:'saneamento-manual', nome:'Saneamento · Manual', rotulo:'Manual', url:'https://marceloclr.github.io/saneamento/manual.html' }
+      { id:'saneamento-essencial', nome:'Saneamento · Essencial', rotulo:'Essencial', url:'https://marceloclr.gitlab.io/saneamento/simplificado/' },
+      { id:'saneamento-manual', nome:'Saneamento · Manual', rotulo:'Manual', url:'https://marceloclr.gitlab.io/saneamento/manual.html' }
     ] },
   { id:'sipog', nome:'SIPOG', sigla:'Orçamento de Investimentos',
-    url:'https://marceloclr.github.io/sipog/',
+    url:'https://marceloclr.gitlab.io/sipog/',
     descricao:'Sistema de Projeção Orçamentária e Gestão Financeira: projeções, acompanhamento e gestão financeira do orçamento de investimentos.',
     etiquetas:['Projeção orçamentária','Gestão financeira'],
     cores:['#4f46e5','#c026d3'], icone:'sipog' },
@@ -777,6 +777,6 @@ aplicarTema(lerPref().tema || 'claro');   /* claro é o padrão; a escolha fica 
 if(liberado()){ document.body.classList.remove('bloqueado'); $('#login').classList.add('oculto'); iniciar(); }
 else mostrarLogin();
 </script>
-<div class="versao-canto" title="Versão da página">V-03112026-1826</div>
+<div class="versao-canto" title="Versão da página">V-05112026-1640</div>
 </body>
 </html>
